@@ -34,6 +34,11 @@ public class Clazz implements Serializable {
     private String name;
 
     /**
+     * 辅导员编号
+     */
+    private Long instructorUserId;
+
+    /**
      * 所属专业编号
      */
     private String major;

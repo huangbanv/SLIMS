@@ -30,9 +30,9 @@ public class UserClazzGroup implements Serializable {
     private Long id;
 
     /**
-     * 用户编号
+     * 学生编号
      */
-    private Long userId;
+    private Long studentUserId;
 
     /**
      * 班级编号

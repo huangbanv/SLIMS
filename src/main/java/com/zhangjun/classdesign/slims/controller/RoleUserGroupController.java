@@ -1,7 +1,11 @@
 package com.zhangjun.classdesign.slims.controller;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sun.javafx.scene.control.behavior.PaginationBehavior;
+import com.zhangjun.classdesign.slims.entity.RoleUserGroup;
 import com.zhangjun.classdesign.slims.service.RoleUserGroupService;
+import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,25 +26,40 @@ public class RoleUserGroupController {
     RoleUserGroupService roleUserGroupService;
 
     @PutMapping
-    public Result putMenu(){
-
-
-        return Result.ok();
+    public Result putRoleUserGroup(@RequestBody RoleUserGroup roleUserGroup){
+        if(EntityField.isAdmin()){
+            return roleUserGroupService.save(roleUserGroup)?Result.ok():Result.error();
+        }
+        return Result.error();
     }
 
     @DeleteMapping
-    public Result deleteMenu(){
-        return Result.ok();
+    public Result deleteRoleUserGroup(@RequestParam("id")Long id){
+        if(EntityField.isAdmin()){
+            return roleUserGroupService.removeById(id)?Result.ok():Result.error();
+        }
+        return Result.error();
     }
 
     @GetMapping
-    public Result listMenu(){
-        return Result.ok();
+    public Result listRoleUserGroup(@RequestParam("aimPage")Integer aimPage,
+                                    @RequestParam("pageSize")Integer pageSize){
+        if(EntityField.isAdmin()){
+            Page<RoleUserGroup> roleUserGroupPage = new Page<>();
+            roleUserGroupPage.setSize(pageSize);
+            roleUserGroupPage.setCurrent(aimPage);
+            Page<RoleUserGroup> page = roleUserGroupService.page(roleUserGroupPage);
+            return Result.ok().setData(page);
+        }
+        return Result.error();
     }
 
     @PostMapping
-    public Result updateMenu(){
-        return Result.ok();
+    public Result updateRoleUserGroup(@RequestBody RoleUserGroup roleUserGroup){
+        if(EntityField.isAdmin()){
+            return roleUserGroupService.updateById(roleUserGroup)?Result.ok():Result.error();
+        }
+        return Result.error();
     }
 }
 

@@ -14,5 +14,10 @@ import com.zhangjun.classdesign.slims.entity.Clazz;
  */
 public interface ClazzService extends IService<Clazz> {
 
-
+    /**
+     * 获取辅导员Id
+     * @param id 学生id
+     * @return 辅导员Id
+     */
+    Long getInstructorId(Long id);
 }

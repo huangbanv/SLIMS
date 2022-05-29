@@ -29,8 +29,7 @@ public class MenuController {
     @PutMapping
     public Result putMenu(@RequestBody Menu menu){
         if(EntityField.isAdmin()){
-            menuService.save(menu);
-            return Result.ok();
+            return menuService.save(menu)?Result.ok():Result.error();
         }
         return Result.error(200,"权限不足");
     }
@@ -38,8 +37,7 @@ public class MenuController {
     @DeleteMapping
     public Result deleteMenu(@RequestParam("id")Long id){
         if(EntityField.isAdmin()){
-            menuService.removeById(new Menu().setId(id));
-            return Result.ok();
+            return menuService.removeById(new Menu().setId(id))?Result.ok():Result.error();
         }
         return Result.error(200,"权限不足");
     }
@@ -61,8 +59,7 @@ public class MenuController {
     public Result updateMenu(@RequestBody Menu menu){
         if(EntityField.isAdmin()){
             if(menu.getId()!=null){
-                menuService.updateById(menu);
-                return Result.ok();
+                return menuService.updateById(menu)?Result.ok():Result.error();
             }
             return Result.error();
         }
