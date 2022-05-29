@@ -7,6 +7,7 @@ import com.zhangjun.classdesign.slims.entity.RoleMenuGroup;
 import com.zhangjun.classdesign.slims.service.RoleMenuGroupService;
 import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
+import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ public class RoleMenuGroupController {
 
     @PutMapping
     public Result putRoleMenuGroup(@RequestBody RoleMenuGroup roleMenuGroup){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             return roleMenuGroupService.save(roleMenuGroup)?Result.ok():Result.error();
         }
         return Result.error();
@@ -35,7 +36,7 @@ public class RoleMenuGroupController {
 
     @DeleteMapping
     public Result deleteRoleMenuGroup(@RequestParam("id")Long id){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             return roleMenuGroupService.removeById(id)?Result.ok():Result.error();
         }
         return Result.error();
@@ -44,7 +45,7 @@ public class RoleMenuGroupController {
     @GetMapping
     public Result listRoleMenuGroup(@RequestParam("aimPage")Integer aimPage,
                                     @RequestParam("pageSize")Integer pageSize){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             Page<RoleMenuGroup> roleMenuGroupPage = new Page<>();
             roleMenuGroupPage.setSize(pageSize);
             roleMenuGroupPage.setCurrent(aimPage);
@@ -56,7 +57,7 @@ public class RoleMenuGroupController {
 
     @PostMapping
     public Result updateRoleMenuGroup(@RequestBody RoleMenuGroup roleMenuGroup){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             return roleMenuGroupService.updateById(roleMenuGroup)?Result.ok():Result.error();
         }
         return Result.error();

@@ -10,6 +10,7 @@ import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.ClazzService;
 import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
+import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class ClazzController {
 
     @PutMapping
     public Result putClazz(@RequestBody Clazz clazz){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             return clazzService.save(clazz)?Result.ok():Result.error();
         }else {
             User user = MyInterceptor.threadLocal.get();
@@ -45,7 +46,7 @@ public class ClazzController {
 
     @DeleteMapping
     public Result deleteClazz(@RequestParam("id")Long id){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             return clazzService.removeById(new Clazz().setId(id))?Result.ok():Result.error();
         }else {
             User user = MyInterceptor.threadLocal.get();
@@ -71,7 +72,7 @@ public class ClazzController {
 
     @PostMapping
     public Result updateClazz(@RequestBody Clazz clazz){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             return clazzService.updateById(clazz)?Result.ok():Result.error();
         }else {
             User user = MyInterceptor.threadLocal.get();

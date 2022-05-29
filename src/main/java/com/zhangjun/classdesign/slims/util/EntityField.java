@@ -62,7 +62,5 @@ public class EntityField {
         return Integer.parseInt(user) > Integer.parseInt(creator);
     }
 
-    public static boolean isAdmin() {
-        return MyInterceptor.threadLocal.get().getRoleId().equals(RoleEnum.SYSTEM_ADMIN.getCode());
-    }
+
 }

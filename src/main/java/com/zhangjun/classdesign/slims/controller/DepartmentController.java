@@ -10,6 +10,7 @@ import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.DepartmentService;
 import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
+import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +33,7 @@ public class DepartmentController {
 
     @PutMapping
     public Result putDepartment(@RequestBody Department department){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             departmentService.save(department);
             return Result.ok();
         }
@@ -41,7 +42,7 @@ public class DepartmentController {
 
     @DeleteMapping
     public Result deleteDepartment(@RequestParam("id")String id){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             departmentService.removeById(id);
             return Result.ok();
         }
@@ -60,7 +61,7 @@ public class DepartmentController {
 
     @PostMapping
     public Result updateDepartment(@RequestBody Department department){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             if(department.getId()!=null){
                 departmentService.updateById(department);
                 return Result.ok();

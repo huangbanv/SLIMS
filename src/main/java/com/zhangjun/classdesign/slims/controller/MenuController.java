@@ -8,6 +8,7 @@ import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.MenuService;
 import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
+import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class MenuController {
 
     @PutMapping
     public Result putMenu(@RequestBody Menu menu){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             return menuService.save(menu)?Result.ok():Result.error();
         }
         return Result.error(200,"权限不足");
@@ -36,7 +37,7 @@ public class MenuController {
 
     @DeleteMapping
     public Result deleteMenu(@RequestParam("id")Long id){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             return menuService.removeById(new Menu().setId(id))?Result.ok():Result.error();
         }
         return Result.error(200,"权限不足");
@@ -45,7 +46,7 @@ public class MenuController {
     @GetMapping
     public Result listMenu(@RequestParam("aimPage")Integer aimPage,
                            @RequestParam("pageSize")Integer pageSize){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             Page<Menu> menuPage = new Page<>();
             menuPage.setSize(pageSize);
             menuPage.setCurrent(aimPage);
@@ -57,7 +58,7 @@ public class MenuController {
 
     @PostMapping
     public Result updateMenu(@RequestBody Menu menu){
-        if(EntityField.isAdmin()){
+        if(RoleCheck.isAdmin()){
             if(menu.getId()!=null){
                 return menuService.updateById(menu)?Result.ok():Result.error();
             }
