@@ -1,0 +1,63 @@
+package com.zhangjun.classdesign.slims.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import java.sql.Timestamp;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+/**
+ * <p>
+ * 部门
+ * </p>
+ *
+ * @author 张钧
+ * @since 2022-05-27
+ */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+public class Department implements Serializable {
+
+    private static final long serialVersionUID=1L;
+
+    /**
+     * 编号  部门类型 X：行政 J：教学 S：系统管理
+     */
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
+
+    /**
+     * 上级编号
+     */
+    private String pid;
+
+    /**
+     * 所有上级编号
+     */
+    private String pids;
+
+    /**
+     * 部门名称
+     */
+    private String name;
+
+    /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
+     * 创建时间
+     */
+    private Timestamp createDate;
+
+    /**
+     * 更新时间
+     */
+    private Timestamp updateDate;
+
+
+}
