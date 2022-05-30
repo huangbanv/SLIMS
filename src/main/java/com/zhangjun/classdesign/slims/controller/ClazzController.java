@@ -39,7 +39,7 @@ public class ClazzController {
             log.info("添加班级成功，用户：{},班级：{}", MyInterceptor.threadLocal.get(), clazz);
             return Result.ok();
         } else {
-            log.warn("添加班级出错，用户：{},班级：{}", MyInterceptor.threadLocal.get(), clazz);
+            log.warn("添加班级失败，用户：{},班级：{}", MyInterceptor.threadLocal.get(), clazz);
             return Result.error("添加失败");
         }
     }
@@ -57,7 +57,7 @@ public class ClazzController {
             log.info("删除班级成功，用户：{},班级id：{}", MyInterceptor.threadLocal.get(),id);
             return Result.ok();
         } else {
-            log.warn("删除班级出错，用户：{},班级id：{}", MyInterceptor.threadLocal.get(),id);
+            log.warn("删除班级失败，用户：{},班级id：{}", MyInterceptor.threadLocal.get(),id);
             return Result.error("删除失败");
         }
     }
@@ -82,7 +82,7 @@ public class ClazzController {
             log.info("修改班级成功，用户：{},班级：{}", MyInterceptor.threadLocal.get(),clazz);
             return Result.ok();
         } else {
-            log.warn("修改班级出错，用户：{},班级：{}", MyInterceptor.threadLocal.get(),clazz);
+            log.warn("修改班级失败，用户：{},班级：{}", MyInterceptor.threadLocal.get(),clazz);
             return Result.error("修改失败");
         }
     }
