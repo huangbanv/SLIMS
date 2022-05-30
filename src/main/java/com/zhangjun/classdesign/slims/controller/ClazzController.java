@@ -75,7 +75,7 @@ public class ClazzController {
         try {
              b = clazzService.updateClazz(clazz);
         } catch (RoleException e) {
-            log.error("修改班级权限出错，用户：{},班级：{}，错误信息：{}", MyInterceptor.threadLocal.get(),clazz, e.getMessage());
+            log.error("修改班级权限出错，用户：{},班级：{}，错误信息：{}", MyInterceptor.threadLocal.get(),clazz,e.getMessage());
             return Result.error(e.getMessage());
         }
         if (b) {
