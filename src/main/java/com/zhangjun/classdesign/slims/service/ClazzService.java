@@ -1,8 +1,10 @@
 package com.zhangjun.classdesign.slims.service;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhangjun.classdesign.slims.entity.Clazz;
+import com.zhangjun.classdesign.slims.exception.RoleException;
 
 /**
  * <p>
@@ -20,4 +22,36 @@ public interface ClazzService extends IService<Clazz> {
      * @return 辅导员Id
      */
     Long getInstructorId(Long id);
+    
+    /**
+     * 添加班级信息
+     * @param clazz 班级信息
+     * @return 是否添加成功
+     * @throws RoleException 没有权限异常
+     */
+    boolean putClazz(Clazz clazz) throws RoleException;
+    
+    /**
+     * 通过Id删除班级信息
+     * @param id 班级Id
+     * @return 是否删除成功
+     * @throws RoleException 没有权限异常
+     */
+    boolean deleteClazz(Long id) throws RoleException;
+    
+    /**
+     * 分页查询班级信息
+     * @param aimPage 目标页面
+     * @param pageSize 页面大小
+     * @return 分页查找数据
+     */
+    Page<Clazz> listClazz(Integer aimPage, Integer pageSize);
+    
+    /**
+     * 修改班级信息
+     * @param clazz 班级信息
+     * @return 是否修改成功
+     * @throws RoleException 没有权限异常
+     */
+    boolean updateClazz(Clazz clazz) throws RoleException;
 }

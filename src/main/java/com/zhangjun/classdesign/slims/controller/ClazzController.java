@@ -1,16 +1,12 @@
 package com.zhangjun.classdesign.slims.controller;
 
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.Clazz;
-import com.zhangjun.classdesign.slims.entity.User;
-import com.zhangjun.classdesign.slims.enums.RoleEnum;
+import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.ClazzService;
-import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
-import com.zhangjun.classdesign.slims.util.RoleCheck;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,67 +20,72 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/slims/clazz")
+@Slf4j
 public class ClazzController {
-
+    
     @Autowired
     ClazzService clazzService;
-
+    
     @PutMapping
-    public Result putClazz(@RequestBody Clazz clazz){
-        if(RoleCheck.isAdmin()){
-            return clazzService.save(clazz)?Result.ok():Result.error();
-        }else {
-            User user = MyInterceptor.threadLocal.get();
-            if(user.getRoleId().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
-                if(clazz.getDepartmentId().equals(user.getDepartmentId())){
-                    return clazzService.save(clazz)?Result.ok():Result.error();
-                }
-            }
-            return Result.error();
+    public Result putClazz(@RequestBody Clazz clazz) {
+        boolean b;
+        try {
+            b = clazzService.putClazz(clazz);
+        } catch (RoleException e) {
+            log.error("添加班级权限出错，用户：{},班级：{}，错误信息：{}", MyInterceptor.threadLocal.get(), clazz, e.getMessage());
+            return Result.error(e.getMessage());
+        }
+        if (b) {
+            log.info("添加班级成功，用户：{},班级：{}", MyInterceptor.threadLocal.get(), clazz);
+            return Result.ok();
+        } else {
+            log.warn("添加班级出错，用户：{},班级：{}", MyInterceptor.threadLocal.get(), clazz);
+            return Result.error("添加失败");
         }
     }
-
+    
     @DeleteMapping
-    public Result deleteClazz(@RequestParam("id")Long id){
-        if(RoleCheck.isAdmin()){
-            return clazzService.removeById(new Clazz().setId(id))?Result.ok():Result.error();
-        }else {
-            User user = MyInterceptor.threadLocal.get();
-            if(user.getRoleId().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
-                Clazz old = clazzService.getOne(new QueryWrapper<Clazz>().eq("id",id));
-                if(user.getDepartmentId().equals(old.getDepartmentId())){
-                    return clazzService.removeById(new Clazz().setId(id))?Result.ok():Result.error();
-                }
-            }
+    public Result deleteClazz(@RequestParam("id") Long id) {
+        boolean b;
+        try {
+            b = clazzService.deleteClazz(id);
+        } catch (RoleException e) {
+            log.error("删除班级权限出错，用户：{},班级id：{}，错误信息：{}", MyInterceptor.threadLocal.get(), id, e.getMessage());
+            return Result.error(e.getMessage());
         }
-        return Result.error();
+        if (b) {
+            log.info("删除班级成功，用户：{},班级id：{}", MyInterceptor.threadLocal.get(),id);
+            return Result.ok();
+        } else {
+            log.warn("删除班级出错，用户：{},班级id：{}", MyInterceptor.threadLocal.get(),id);
+            return Result.error("删除失败");
+        }
     }
-
+    
     @GetMapping
-    public Result listClazz(@RequestParam("aimPage")Integer aimPage,
-                            @RequestParam("pageSize")Integer pageSize){
-        Page<Clazz> clazzPage = new Page<>();
-        clazzPage.setSize(pageSize);
-        clazzPage.setCurrent(aimPage);
-        Page<Clazz> page = clazzService.page(clazzPage);
+    public Result listClazz(@RequestParam("aimPage") Integer aimPage,
+                            @RequestParam("pageSize") Integer pageSize) {
+        Page<Clazz> page = clazzService.listClazz(aimPage,pageSize);
         return Result.ok().setData(page);
     }
-
+    
     @PostMapping
-    public Result updateClazz(@RequestBody Clazz clazz){
-        if(RoleCheck.isAdmin()){
-            return clazzService.updateById(clazz)?Result.ok():Result.error();
-        }else {
-            User user = MyInterceptor.threadLocal.get();
-            if(user.getRoleId().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
-                Clazz old = clazzService.getOne(new QueryWrapper<Clazz>().eq("id", clazz.getId()));
-                if(user.getDepartmentId().equals(old.getDepartmentId())){
-                    return clazzService.updateById(clazz)?Result.ok():Result.error();
-                }
-            }
+    public Result updateClazz(@RequestBody Clazz clazz) {
+        boolean b;
+        try {
+             b = clazzService.updateClazz(clazz);
+        } catch (RoleException e) {
+            log.error("修改班级权限出错，用户：{},班级：{}，错误信息：{}", MyInterceptor.threadLocal.get(),clazz, e.getMessage());
+            return Result.error(e.getMessage());
         }
-        return Result.error();
+        if (b) {
+            log.info("修改班级成功，用户：{},班级：{}", MyInterceptor.threadLocal.get(),clazz);
+            return Result.ok();
+        } else {
+            log.warn("修改班级出错，用户：{},班级：{}", MyInterceptor.threadLocal.get(),clazz);
+            return Result.error("修改失败");
+        }
     }
-
+    
 }
 
