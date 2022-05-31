@@ -2,6 +2,8 @@ package com.zhangjun.classdesign.slims.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.sql.Timestamp;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
@@ -35,9 +37,9 @@ public class Menu implements Serializable {
     private String name;
 
     /**
-     * 类型   0：菜单   1：按钮
+     * 菜单代码
      */
-    private Integer type;
+    private String menuCode;
 
     /**
      * 排序
@@ -54,5 +56,6 @@ public class Menu implements Serializable {
      */
     private Timestamp updateDate;
 
-
+    @TableField(exist = false)
+    private Integer permission;
 }

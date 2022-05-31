@@ -95,16 +95,16 @@ create table menu
 (
     id          bigint primary key auto_increment COMMENT 'id',
     name        varchar(200) COMMENT '名称',
-    type        tinyint unsigned COMMENT '类型   0：菜单   1：按钮',
+    menu_code   varchar(20) comment '菜单代码',
     sort        int COMMENT '排序',
     create_date datetime default current_timestamp COMMENT '创建时间',
     update_date datetime default current_timestamp COMMENT '更新时间',
     key idx_sort (sort)
 ) COMMENT '菜单';
-insert into menu(name, type, sort)
-VALUES ("部门管理","0","0"),("班级管理","0","1"),("菜单管理","0","2"),("请假管理","0","3"),
-       ("角色菜单关系","0","4"),("角色管理","0","5"),("用户角色管理","0","6"),("用户班级管理","0","7"),
-       ("用户管理","0","8");
+insert into menu(name, type, sort,menu_code)
+VALUES ("部门管理","0","department"),("班级管理","1","clazz"),("菜单管理","2","menu"),
+       ("请假管理","3","leave"),("角色管理","4","role"),("用户管理","5","user"),
+       ("数据分析","6","analysis"),("辅导员管理","7","instructor");
 create table role_menu_group
 (
     id          bigint primary key auto_increment COMMENT 'id',
@@ -114,9 +114,10 @@ create table role_menu_group
     create_date datetime default current_timestamp COMMENT '创建时间',
     key idx_role_id (role_id)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET utf8mb4 COMMENT ='角色菜单关系';
-# insert into role_menu_group(role_id, menu_id,permissions)
-# value ("","",""),("","",""),("","",""),("","",""),("","",""),
-#     ("","",""),("","",""),("","",""),("","",""),("","",""),
+insert into role_menu_group(role_id, menu_id,permissions)
+value ("0","1","7"),("0","2","7"),("0","3","7"),("0","4","7"),("0","5","7"),
+    ("0","6","7"),("0","7","7"),("0","8","7");
+#     ,("","",""),
 #     ("","",""),("","",""),("","",""),("","",""),("","",""),
 #     ("","",""),("","",""),("","",""),("","",""),("","",""),
 #     ("","",""),("","",""),("","",""),("","",""),("","",""),

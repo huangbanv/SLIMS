@@ -67,11 +67,6 @@ public class User implements Serializable {
     private Integer gender;
 
     /**
-     * 超级管理员   0：否   1：是
-     */
-    private Integer superAdmin;
-
-    /**
      * 状态  0：停用   1：正常
      */
     private Integer status;
@@ -98,6 +93,6 @@ public class User implements Serializable {
      * 可用的菜单栏
      */
     @TableField(exist = false)
-    private Map<String,Integer> menus;
+    private List<Menu> menus;
 
 }

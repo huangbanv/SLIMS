@@ -2,6 +2,7 @@ package com.zhangjun.classdesign.slims.controller;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhangjun.classdesign.slims.entity.Menu;
 import com.zhangjun.classdesign.slims.entity.User;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.UserService;
@@ -14,6 +15,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,19 +38,25 @@ public class UserController {
                         HttpSession session,
                         HttpServletResponse response){
         User loginUser = userService.getUser(user);
-        if(loginUser != null && loginUser.getPassword().equals(user.getPassword())){
-            Cookie cookie = new Cookie("loginUser",loginUser.getName());
-            response.addCookie(cookie);
-            session.setAttribute("loginUser",loginUser);
-            Map<String,Map<String,Integer>> map = new HashMap<>(2);
-            map.put("menus",loginUser.getMenus());
-            return Result.ok().setData(map);
+        if(loginUser != null){
+            if(loginUser.getStatus() == 0){
+                return Result.error("您的账户已停用");
+            }else if(loginUser.getPassword().equals(user.getPassword())){
+                Cookie cookie = new Cookie("loginUser",loginUser.getName());
+                response.addCookie(cookie);
+                session.setAttribute("loginUser",loginUser);
+                Map<String,Object> map = new HashMap<>(2);
+                map.put("userName",loginUser.getName());
+                map.put("menus",loginUser.getMenus());
+                return Result.ok().setData(map);
+            }
         }
         return Result.error();
     }
 
     @GetMapping("/logout")
     public Result logout(HttpSession session){
+        System.out.println("退出登录");
         session.invalidate();
         return Result.ok();
     }

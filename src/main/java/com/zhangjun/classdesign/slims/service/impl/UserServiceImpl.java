@@ -2,16 +2,10 @@ package com.zhangjun.classdesign.slims.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhangjun.classdesign.slims.entity.Role;
-import com.zhangjun.classdesign.slims.entity.RoleMenuGroup;
-import com.zhangjun.classdesign.slims.entity.RoleUserGroup;
-import com.zhangjun.classdesign.slims.entity.User;
+import com.zhangjun.classdesign.slims.entity.*;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.mapper.UserMapper;
-import com.zhangjun.classdesign.slims.service.RoleMenuGroupService;
-import com.zhangjun.classdesign.slims.service.RoleService;
-import com.zhangjun.classdesign.slims.service.RoleUserGroupService;
-import com.zhangjun.classdesign.slims.service.UserService;
+import com.zhangjun.classdesign.slims.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhangjun.classdesign.slims.util.EntityField;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +43,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     RoleService roleService;
 
+    @Autowired
+    MenuService menuService;
+
 
     /**
      * 登录验证
@@ -60,25 +57,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public User getUser(User user) {
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         User theOne;
-        if(user.getId()!=null){
-            System.out.println(user.getId());
+        if (user.getId() != null) {
             theOne = this.getOne(userQueryWrapper.eq("id", user.getId()));
-            System.out.println(theOne);
-        }else if(user.getAccount()!=null){
+        } else if (user.getAccount() != null) {
             theOne = this.getOne(userQueryWrapper.eq("account", user.getAccount()));
-        }else {
+        } else {
             return null;
         }
         if (theOne != null) {
-            if (theOne.getStatus() == 1) {
-                RoleUserGroup userRole = roleGroupService.getOne(new QueryWrapper<RoleUserGroup>().eq("user_id", theOne.getId()));
-                theOne.setRoleId(userRole.getRoleId());
-                Map<String, Integer> menuMap = menuGroupService.list(
-                                new QueryWrapper<RoleMenuGroup>().eq("role_id", userRole.getRoleId()))
-                        .stream().collect(Collectors.toMap(menu -> menu.getMenuId().toString(), RoleMenuGroup::getPermissions));
-                theOne.setMenus(menuMap);
-                return theOne;
-            }
+            RoleUserGroup userRole = roleGroupService.getOne(new QueryWrapper<RoleUserGroup>().eq("user_id", theOne.getId()));
+            theOne.setRoleId(userRole.getRoleId());
+            Map<Long, Integer> menuPermission = menuGroupService.list(
+                    new QueryWrapper<RoleMenuGroup>().eq("role_id", userRole.getRoleId()))
+                    .stream().collect(Collectors.toMap(RoleMenuGroup::getMenuId, RoleMenuGroup::getPermissions));
+            List<Menu> menus = menuService.list(new QueryWrapper<Menu>().in("id", menuPermission.keySet()));
+            menus.forEach(menu -> menu.setPermission(menuPermission.get(menu.getId())));
+            theOne.setMenus(menus);
+            return theOne;
         }
         return null;
     }
@@ -109,8 +104,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * AND department_id > "J00"
      * and department_id like "J%"
      * LIMIT 0,2
-     * @param aimPage      目标页面
-     * @param pageSize     页面大小
+     *
+     * @param aimPage  目标页面
+     * @param pageSize 页面大小
      * @return 用户列表
      */
     @Override
@@ -119,19 +115,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String departmentId = user.getDepartmentId();
         String roleId = user.getRoleId();
         String s = roleId.replaceFirst("[0-9]", "%");
-        QueryWrapper<Role> roleQueryWrapper = new QueryWrapper<Role>().gt("id", roleId).like("id",s );
+        QueryWrapper<Role> roleQueryWrapper = new QueryWrapper<Role>().gt("id", roleId).like("id", s);
         List<String> roleIds = roleService.list(roleQueryWrapper).stream().map(Role::getId).collect(Collectors.toList());
-        if(roleIds.size()<=0){
+        if (roleIds.size() <= 0) {
             return null;
         }
-        QueryWrapper<RoleUserGroup> roleGroupQueryWrapper = new QueryWrapper<RoleUserGroup>().in("role_id",roleIds);
+        QueryWrapper<RoleUserGroup> roleGroupQueryWrapper = new QueryWrapper<RoleUserGroup>().in("role_id", roleIds);
         List<Long> userIds = roleGroupService.list(roleGroupQueryWrapper).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
-        if(userIds.size()<=0){
+        if (userIds.size() <= 0) {
             return null;
         }
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<User>().in("id",userIds).eq("department_id", departmentId);
-        List<User> list = this.list(userQueryWrapper.last("limit "+(aimPage-1)*pageSize+","+pageSize));
-        if(list.size()<=0){
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<User>().in("id", userIds).eq("department_id", departmentId);
+        List<User> list = this.list(userQueryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize));
+        if (list.size() <= 0) {
             return null;
         }
         long count = this.count(userQueryWrapper);
@@ -146,7 +142,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 删除用户
      *
-     * @param id     用户Id
+     * @param id 用户Id
      * @return 是否删除成功
      */
     @Override
@@ -154,30 +150,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User loginUser = MyInterceptor.threadLocal.get();
         String roleId = loginUser.getRoleId();
         User user = getUser(new User().setId(id));
-        if(!EntityField.roleCheck(roleId,user.getRoleId())){
+        if (!EntityField.roleCheck(roleId, user.getRoleId())) {
             return false;
         }
-        return this.remove(new QueryWrapper<User>().eq("id",id));
+        return this.remove(new QueryWrapper<User>().eq("id", id));
     }
 
     /**
      * 修改用户信息
      *
-     * @param user   用户信息
+     * @param user 用户信息
      * @return 是否修改成功
      */
     @Override
     public boolean updateWithRole(User user) {
         User loginUser = MyInterceptor.threadLocal.get();
-        String roleId  = loginUser.getRoleId();
-        user.setSuperAdmin(null);
+        String roleId = loginUser.getRoleId();
         user.setAccount(null);
         user.setDepartmentId(null);
         User updateUser = getUser(user);
-        if(user.getRoleId()!=null && !EntityField.roleCheck(roleId,user.getRoleId())){
+        if (user.getRoleId() != null && !EntityField.roleCheck(roleId, user.getRoleId())) {
             return false;
         }
-        if(!EntityField.roleCheck(roleId,updateUser.getRoleId())){
+        if (!EntityField.roleCheck(roleId, updateUser.getRoleId())) {
             return false;
         }
         user.setUpdateDate(new Timestamp(System.currentTimeMillis()));

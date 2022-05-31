@@ -2,7 +2,6 @@ package com.zhangjun.classdesign.slims.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,16 +17,14 @@ public class Result extends HashMap<String, Object> {
     public <T> T getData(String name,TypeReference<T> typeReference){
         Object data = get(name);
         String s = JSON.toJSONString(data);
-        T t = JSON.parseObject(s,typeReference);
-        return t;
+        return JSON.parseObject(s,typeReference);
 
     }
 
-    public <T> T getData(TypeReference<T> typeResulteference){
+    public <T> T getData(TypeReference<T> typeReference){
         Object data = get("data");
         String s = JSON.toJSONString(data);
-        T t = JSON.parseObject(s,typeResulteference);
-        return t;
+        return JSON.parseObject(s,typeReference);
 
     }
     public Result setData(Object data){
@@ -35,7 +32,7 @@ public class Result extends HashMap<String, Object> {
         return this;
     }
     public Result() {
-        put("code", 0);
+        put("code", 200);
         put("msg", "success");
     }
 
