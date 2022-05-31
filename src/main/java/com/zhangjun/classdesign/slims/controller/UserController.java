@@ -56,7 +56,6 @@ public class UserController {
 
     @GetMapping("/logout")
     public Result logout(HttpSession session){
-        System.out.println("退出登录");
         session.invalidate();
         return Result.ok();
     }

@@ -101,7 +101,7 @@ create table menu
     update_date datetime default current_timestamp COMMENT '更新时间',
     key idx_sort (sort)
 ) COMMENT '菜单';
-insert into menu(name, type, sort,menu_code)
+insert into menu(name,sort,menu_code)
 VALUES ("部门管理","0","department"),("班级管理","1","clazz"),("菜单管理","2","menu"),
        ("请假管理","3","leave"),("角色管理","4","role"),("用户管理","5","user"),
        ("数据分析","6","analysis"),("辅导员管理","7","instructor");
