@@ -34,7 +34,7 @@ public class Result extends HashMap<String, Object> {
     }
     public Result() {
         put("code", 200);
-        put("msg", "success");
+        put("msg", "成功");
     }
 
     public static Result error() {

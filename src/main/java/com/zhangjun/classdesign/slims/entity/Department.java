@@ -40,11 +40,6 @@ public class Department implements Serializable {
     private String pid;
 
     /**
-     * 所有上级编号
-     */
-    private String pids;
-
-    /**
      * 部门名称
      */
     private String name;

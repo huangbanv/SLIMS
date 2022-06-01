@@ -51,7 +51,7 @@ public class UserController {
                 return Result.ok().setData(map);
             }
         }
-        return Result.error();
+        return Result.error("登陆错误");
     }
 
     @GetMapping("/logout")

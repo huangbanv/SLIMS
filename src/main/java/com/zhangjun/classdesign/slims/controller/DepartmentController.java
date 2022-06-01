@@ -67,7 +67,7 @@ public class DepartmentController {
             return Result.ok();
         } else {
             log.warn("删除部门失败，用户：{},部门id：{}", MyInterceptor.threadLocal.get(), id);
-            return Result.error("添加失败");
+            return Result.error("删除失败");
         }
     }
 

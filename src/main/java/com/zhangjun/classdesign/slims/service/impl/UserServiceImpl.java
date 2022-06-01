@@ -66,13 +66,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         if (theOne != null) {
             RoleUserGroup userRole = roleGroupService.getOne(new QueryWrapper<RoleUserGroup>().eq("user_id", theOne.getId()));
-            theOne.setRoleId(userRole.getRoleId());
-            Map<Long, Integer> menuPermission = menuGroupService.list(
-                    new QueryWrapper<RoleMenuGroup>().eq("role_id", userRole.getRoleId()))
-                    .stream().collect(Collectors.toMap(RoleMenuGroup::getMenuId, RoleMenuGroup::getPermissions));
-            List<Menu> menus = menuService.list(new QueryWrapper<Menu>().in("id", menuPermission.keySet()));
-            menus.forEach(menu -> menu.setPermission(menuPermission.get(menu.getId())));
-            theOne.setMenus(menus);
+            if(userRole!=null){
+                theOne.setRoleId(userRole.getRoleId());
+                Map<Long, Integer> menuPermission = menuGroupService.list(
+                                new QueryWrapper<RoleMenuGroup>().eq("role_id", userRole.getRoleId()))
+                        .stream().collect(Collectors.toMap(RoleMenuGroup::getMenuId, RoleMenuGroup::getPermissions));
+                if(menuPermission.size()>0){
+                    List<Menu> menus = menuService.list(new QueryWrapper<Menu>().in("id", menuPermission.keySet()));
+                    menus.forEach(menu -> menu.setPermission(menuPermission.get(menu.getId())));
+                    theOne.setMenus(menus);
+                }
+            }
             return theOne;
         }
         return null;

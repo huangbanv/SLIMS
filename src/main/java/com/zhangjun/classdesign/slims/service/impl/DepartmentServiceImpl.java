@@ -37,8 +37,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     public boolean deleteDepartment(String id) throws RoleException {
         if (RoleCheck.isAdmin()) {
-            return true;
-            //removeById(id);
+            return removeById(id);
         }
         throw new RoleException("您没有权限");
     }

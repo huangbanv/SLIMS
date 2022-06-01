@@ -1,9 +1,11 @@
 package com.zhangjun.classdesign.slims.controller;
 
 
+import com.alibaba.druid.sql.visitor.functions.Lcase;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.Menu;
 import com.zhangjun.classdesign.slims.enums.RoleEnum;
+import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.MenuService;
 import com.zhangjun.classdesign.slims.util.EntityField;
@@ -11,6 +13,9 @@ import com.zhangjun.classdesign.slims.util.Result;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -46,14 +51,16 @@ public class MenuController {
     @GetMapping
     public Result listMenu(@RequestParam("aimPage")Integer aimPage,
                            @RequestParam("pageSize")Integer pageSize){
-        if(RoleCheck.isAdmin()){
-            Page<Menu> menuPage = new Page<>();
-            menuPage.setSize(pageSize);
-            menuPage.setCurrent(aimPage);
-            Page<Menu> page = menuService.page(menuPage);
-            return Result.ok().setData(page);
+        Page<Menu> page;
+        try {
+            page = menuService.listMenu(aimPage,pageSize);
+        } catch (RoleException e) {
+            return Result.error(e.getMessage());
         }
-        return Result.error(200,"权限不足");
+        if(page.getRecords() == null||page.getRecords().size()==0){
+            return Result.error("无记录");
+        }
+        return Result.ok().setData(page);
     }
 
     @PostMapping
