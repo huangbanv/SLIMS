@@ -22,9 +22,13 @@ public class MyInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
         User loginUser = (User) request.getSession().getAttribute("loginUser");
         if(loginUser == null){
-            response.getWriter().write(Result.error(300, "请先登录").toString());
+            response.getWriter().write(JSON.toJSONString(Result.error(300, "请先登录")));
             return false;
         }
         threadLocal.set(loginUser);

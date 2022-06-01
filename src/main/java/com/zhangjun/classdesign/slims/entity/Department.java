@@ -2,8 +2,13 @@ package com.zhangjun.classdesign.slims.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.sql.Timestamp;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -52,12 +57,14 @@ public class Department implements Serializable {
     /**
      * 创建时间
      */
-    private Timestamp createDate;
+    private String createDate;
 
     /**
      * 更新时间
      */
-    private Timestamp updateDate;
-
+    private String updateDate;
+    
+    @TableField(exist = false)
+    private List<Department> children = new ArrayList<>();
 
 }

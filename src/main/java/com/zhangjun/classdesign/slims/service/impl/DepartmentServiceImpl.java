@@ -10,6 +10,12 @@ import com.zhangjun.classdesign.slims.util.Result;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * <p>
  * 部门 服务实现类
@@ -31,7 +37,8 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
     @Override
     public boolean deleteDepartment(String id) throws RoleException {
         if (RoleCheck.isAdmin()) {
-            return removeById(id);
+            return true;
+            //removeById(id);
         }
         throw new RoleException("您没有权限");
     }
@@ -63,7 +70,23 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         Page<Department> page = new Page<>();
         page.setSize(pageSize);
         page.setCurrent(aimPage);
-        return page(page);
+        final Page<Department> result = page(page);
+        final List<Department> records = result.getRecords();
+        List<Department> delete = new ArrayList<>();
+        for (Department record : records) {
+            if(!"0".equals(record.getPid())){
+                for (Department department : records) {
+                    if(department.getId().equals(record.getPid())){
+                        department.getChildren().add(record);
+                    }
+                }
+                delete.add(record);
+            }
+        }
+        for (Department department : delete) {
+            records.remove(department);
+        }
+        return result;
     }
     
     /**
