@@ -2,62 +2,38 @@ package com.zhangjun.classdesign.slims.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.User;
+import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.UserService;
 import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author 张钧
  * @since 2022-05-27
  */
 @RestController
+@Slf4j
 @RequestMapping("/slims/user")
 public class UserController {
 
     @Resource
     UserService userService;
 
-    @PostMapping("/login")
-    public Result login(@RequestBody User user,
-                        HttpSession session,
-                        HttpServletResponse response){
-        User loginUser = userService.getUser(user);
-        if(loginUser != null){
-            if(loginUser.getStatus() == 0){
-                return Result.error("您的账户已停用");
-            }else if(loginUser.getPassword().equals(user.getPassword())){
-                Cookie cookie = new Cookie("loginUser",loginUser.getName());
-                response.addCookie(cookie);
-                session.setAttribute("loginUser",loginUser);
-                Map<String,Object> map = new HashMap<>(2);
-                map.put("userName",loginUser.getName());
-                map.put("menus",loginUser.getMenus());
-                return Result.ok().setData(map);
-            }
-        }
-        return Result.error("登陆错误");
-    }
-
-    @GetMapping("/logout")
-    public Result logout(HttpSession session){
-        session.invalidate();
-        return Result.ok();
-    }
-
-    @PutMapping("/entry")
-    public Result entryUser(@RequestBody User user){
+    @PutMapping
+    public Result putUser(@RequestBody User user){
         if(!EntityField.roleCheck(MyInterceptor.threadLocal.get().getRoleId(),user.getRoleId())){
             return Result.error();
         }
-        userService.create(user);
+//        try {
+//            userService.create(user);
+//        } catch (RoleException | UnexpectedRollbackException e) {
+//            e.printStackTrace();
+//        }
         return Result.ok();
     }
 
@@ -66,7 +42,7 @@ public class UserController {
                            @RequestParam("pageSize")Integer pageSize){
         Page<User> page = userService.getPage(aimPage,pageSize);
         if(page == null){
-            return Result.error(200,"无数据");
+            return Result.error(500,"无数据");
         }
         return Result.ok().setData(page);
     }

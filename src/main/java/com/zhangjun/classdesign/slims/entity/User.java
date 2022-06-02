@@ -1,15 +1,10 @@
 package com.zhangjun.classdesign.slims.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.sql.Timestamp;
-
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -53,12 +48,18 @@ public class User implements Serializable {
     private String departmentId;
 
     /**
+     * 所属部门名
+     */
+    @TableField(exist = false)
+    private String departmentName;
+
+    /**
      * 手机号
      */
     private String phone;
 
     /**
-     * 性别   0：男   1：女    2：保密
+     * 性别   0：男   1：女
      */
     private Integer gender;
 
@@ -67,17 +68,23 @@ public class User implements Serializable {
      */
     private Integer status;
 
+    @TableField(exist = false)
+    private String genderS;
+
+    @TableField(exist = false)
+    private String statusS;
+
     /**
      * 创建时间
      */
-    private Timestamp createDate;
+    private String createDate;
 
 
     /**
      * 更新时间
      */
     @TableField
-    private Timestamp updateDate;
+    private String updateDate;
 
     /**
      * 角色Id

@@ -3,25 +3,29 @@ package com.zhangjun.classdesign.slims.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.*;
+import com.zhangjun.classdesign.slims.enums.HttpStatus;
+import com.zhangjun.classdesign.slims.enums.RoleEnum;
+import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.mapper.UserMapper;
 import com.zhangjun.classdesign.slims.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhangjun.classdesign.slims.util.EntityField;
+import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import javax.jws.soap.SOAPBinding;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
+import javax.annotation.Resource;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * <p>
@@ -34,18 +38,20 @@ import java.util.stream.Stream;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    @Autowired
+    @Resource
     RoleUserGroupService roleGroupService;
 
-    @Autowired
+    @Resource
     RoleMenuGroupService menuGroupService;
 
-    @Autowired
+    @Resource
     RoleService roleService;
 
-    @Autowired
+    @Resource
     MenuService menuService;
 
+    @Resource
+    DepartmentService departmentService;
 
     /**
      * 登录验证
@@ -66,12 +72,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         if (theOne != null) {
             RoleUserGroup userRole = roleGroupService.getOne(new QueryWrapper<RoleUserGroup>().eq("user_id", theOne.getId()));
-            if(userRole!=null){
+            if (userRole != null) {
                 theOne.setRoleId(userRole.getRoleId());
                 Map<Long, Integer> menuPermission = menuGroupService.list(
                                 new QueryWrapper<RoleMenuGroup>().eq("role_id", userRole.getRoleId()))
                         .stream().collect(Collectors.toMap(RoleMenuGroup::getMenuId, RoleMenuGroup::getPermissions));
-                if(menuPermission.size()>0){
+                if (menuPermission.size() > 0) {
                     List<Menu> menus = menuService.list(new QueryWrapper<Menu>().in("id", menuPermission.keySet()));
                     menus.forEach(menu -> menu.setPermission(menuPermission.get(menu.getId())));
                     theOne.setMenus(menus);
@@ -87,15 +93,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      *
      * @param user 用户
      */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void create(User user) {
+    private boolean create(User user) {
         String roleId = user.getRoleId();
         RoleUserGroup roleUserGroup = new RoleUserGroup();
+        boolean saveUser = this.save(user);
         roleUserGroup.setUserId(user.getId());
         roleUserGroup.setRoleId(roleId);
-        roleGroupService.save(roleUserGroup);
-        this.save(user);
+        boolean saveGroup = roleGroupService.save(roleUserGroup);
+        return saveUser && saveGroup;
     }
 
     /**
@@ -179,7 +184,70 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!EntityField.roleCheck(roleId, updateUser.getRoleId())) {
             return false;
         }
-        user.setUpdateDate(new Timestamp(System.currentTimeMillis()));
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        user.setUpdateDate(dateFormat.format(System.currentTimeMillis()));
         return this.updateById(user);
+    }
+
+    /**
+     * 分页查找辅导员列表
+     *
+     * @param aimPage  目标页
+     * @param pageSize 页大小
+     * @return 辅导员列表
+     * @throws RoleException 无权限异常
+     */
+    @Override
+    public Page<User> getInstructorList(Integer aimPage, Integer pageSize) throws RoleException {
+        if (RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()) {
+            Page<User> userPage = new Page<>();
+            List<Long> instructorIds = roleGroupService.list(new QueryWrapper<RoleUserGroup>()
+                            .eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
+                    .stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+            QueryWrapper<User> queryWrapper = new QueryWrapper<User>().in("id", instructorIds);
+            userPage.setTotal(count(queryWrapper));
+            userPage.setSize(pageSize);
+            userPage.setCurrent(aimPage);
+            List<User> instructors = list(queryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize));
+            Map<String, String> departmentMap = departmentService.list().stream().collect(Collectors.toMap(Department::getId, Department::getName));
+            instructors.forEach(instructor -> {
+                instructor.setDepartmentName(departmentMap.get(instructor.getDepartmentId()));
+                instructor.setStatusS(instructor.getStatus() == 0 ? "停用" : "正常");
+                instructor.setGenderS(instructor.getGender() == 0 ? "男" : "女");
+            });
+            userPage.setRecords(instructors);
+            return userPage;
+        }
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+    }
+
+    /**
+     * 更新辅导员信息
+     *
+     * @param user 辅导员
+     * @return 是否更新成功
+     * @throws RoleException 无权限异常
+     */
+    @Override
+    public boolean updateInstructor(User user) throws RoleException {
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+    }
+
+    /**
+     * 新增辅导员信息
+     *
+     * @param user 辅导员信息
+     * @return 是否新增成功
+     * @throws RoleException 无权限异常
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean putInstructor(User user) throws RoleException {
+        if (RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()) {
+            user.setRoleId(RoleEnum.COLLEGE_INSTRUCTOR.getCode());
+            user.setDepartmentId(RoleCheck.getDepartmentId());
+            return create(user);
+        }
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }
 }

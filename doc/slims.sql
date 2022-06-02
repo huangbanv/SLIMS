@@ -6,7 +6,7 @@ create table department
     pid         varchar(3)  not null default 0 comment '上级编号',
     name        varchar(30) not null comment '部门名称',
     create_date datetime default current_timestamp COMMENT '创建时间',
-    update_date datetime COMMENT '更新时间',
+    update_date datetime default current_timestamp COMMENT '更新时间',
     key idx_pid (pid)
 ) comment '部门';
 insert into department(id, name)
@@ -29,7 +29,7 @@ create table user
     gender        tinyint unsigned default 2 COMMENT '性别   0：男   1：女    2：保密',
     status        tinyint default 1 COMMENT '状态  0：停用   1：正常',
     create_date   datetime default current_timestamp COMMENT '创建时间',
-    update_date   datetime COMMENT '更新时间',
+    update_date   datetime default current_timestamp COMMENT '更新时间',
     KEY status_key(status),
     key idx_create_date (create_date)
 ) comment '用户';
