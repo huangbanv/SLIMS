@@ -2,6 +2,7 @@ package com.zhangjun.classdesign.slims.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.Department;
+import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.mapper.DepartmentMapper;
 import com.zhangjun.classdesign.slims.service.DepartmentService;
@@ -39,7 +40,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         if (RoleCheck.isAdmin()) {
             return removeById(id);
         }
-        throw new RoleException("您没有权限");
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }
     
     /**
@@ -54,21 +55,25 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         if (RoleCheck.isAdmin()) {
             return save(department);
         }
-        throw new RoleException("您没有权限");
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+    }
+    
+    /**
+     * 仅提供id与部门名
+     * @return 部门列表
+     */
+    @Override
+    public Page<Department> listDepartment() {
+        return page(new Page<>());
     }
     
     /**
      * 分页查询部门信息
-     *
-     * @param aimPage  目标页
-     * @param pageSize 页面大小
      * @return 部门信息
      */
     @Override
-    public Page<Department> listDepartment(Integer aimPage, Integer pageSize) {
+    public Page<Department> listDepartmentDetail() {
         Page<Department> page = new Page<>();
-        page.setSize(pageSize);
-        page.setCurrent(aimPage);
         final Page<Department> result = page(page);
         final List<Department> records = result.getRecords();
         List<Department> delete = new ArrayList<>();
@@ -100,6 +105,6 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         if (RoleCheck.isAdmin()) {
             return updateById(department);
         }
-        throw new RoleException("您没有权限");
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }
 }

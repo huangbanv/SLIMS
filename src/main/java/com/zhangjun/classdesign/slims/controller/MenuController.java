@@ -1,51 +1,62 @@
 package com.zhangjun.classdesign.slims.controller;
 
-
-import com.alibaba.druid.sql.visitor.functions.Lcase;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.Menu;
-import com.zhangjun.classdesign.slims.enums.RoleEnum;
+import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.MenuService;
-import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
-import com.zhangjun.classdesign.slims.util.RoleCheck;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Resource;
 
 /**
- * <p>
- * 菜单 前端控制器
- * </p>
- *
  * @author 张钧
  * @since 2022-05-27
  */
 @RestController
+@Slf4j
 @RequestMapping("/slims/menu")
 public class MenuController {
 
-    @Autowired
+    @Resource
     MenuService menuService;
 
     @PutMapping
     public Result putMenu(@RequestBody Menu menu){
-        if(RoleCheck.isAdmin()){
-            return menuService.save(menu)?Result.ok():Result.error();
+        boolean b;
+        try {
+            b = menuService.putMenu(menu);
+        }catch (RoleException e){
+            log.error("添加菜单权限出错，用户：{},错误信息：{},菜单：{}", MyInterceptor.threadLocal.get(), e.getMessage(),menu);
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        return Result.error(200,"权限不足");
+        if(b){
+            log.info("成功，用户：{},菜单：{}", MyInterceptor.threadLocal.get(), menu);
+            return Result.ok("添加菜单成功");
+        }
+        log.warn("添加菜单失败，用户：{},菜单：{}", MyInterceptor.threadLocal.get(),menu);
+        return Result.error(500,"添加菜单错误");
     }
 
     @DeleteMapping
     public Result deleteMenu(@RequestParam("id")Long id){
-        if(RoleCheck.isAdmin()){
-            return menuService.removeById(new Menu().setId(id))?Result.ok():Result.error();
+        boolean b;
+        try {
+            b = menuService.deleteMenu(id);
+        }catch (RoleException e){
+            log.error("添加菜单权限出错，用户：{},错误信息：{},菜单id：{}", MyInterceptor.threadLocal.get(), e.getMessage(),id);
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        return Result.error(200,"权限不足");
+        if(b){
+            log.info("成功，用户：{},菜单id：{}", MyInterceptor.threadLocal.get(),id);
+            return Result.ok("删除菜单成功");
+        }
+        log.warn("添加菜单失败，用户：{},菜单id：{}", MyInterceptor.threadLocal.get(),id);
+        return Result.error(500,"添加菜单错误");
+        
     }
 
     @GetMapping
@@ -55,23 +66,37 @@ public class MenuController {
         try {
             page = menuService.listMenu(aimPage,pageSize);
         } catch (RoleException e) {
-            return Result.error(e.getMessage());
+            log.error("查询菜单权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        if(page.getRecords() == null||page.getRecords().size()==0){
-            return Result.error("无记录");
+        if(page.getRecords().size()==0){
+            log.warn("查询菜单失败，用户：{},记录：{}", MyInterceptor.threadLocal.get(),page);
+            return Result.error("查询菜单失败，可能无记录");
         }
+        log.info("查询菜单成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), page);
         return Result.ok().setData(page);
     }
 
     @PostMapping
     public Result updateMenu(@RequestBody Menu menu){
-        if(RoleCheck.isAdmin()){
-            if(menu.getId()!=null){
-                return menuService.updateById(menu)?Result.ok():Result.error();
-            }
-            return Result.error();
+        if(menu.getId()==null){
+            log.error("菜单信息输入错误，id不得为空，用户：{},菜单：{}",MyInterceptor.threadLocal.get(),menu);
+            return Result.error("菜单id不得为空");
         }
-        return Result.error(200,"权限不足");
+        boolean b;
+        try {
+            b = menuService.updateMenu(menu);
+        }catch (RoleException e){
+            log.error("修改菜单权限出错，用户：{},错误信息：{},菜单：{}", MyInterceptor.threadLocal.get(), e.getMessage(),menu);
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
+        }
+        if(b){
+            log.info("修改菜单成功，用户：{},菜单：{}", MyInterceptor.threadLocal.get(),menu);
+            return Result.ok("修改菜单成功");
+        }else {
+            log.warn("修改菜单失败，用户：{},菜单：{}", MyInterceptor.threadLocal.get(),menu);
+            return Result.error("修改菜单失败");
+        }
     }
 }
 

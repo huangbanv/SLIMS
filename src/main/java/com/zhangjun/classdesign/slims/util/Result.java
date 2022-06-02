@@ -3,6 +3,7 @@ package com.zhangjun.classdesign.slims.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.zhangjun.classdesign.slims.enums.HttpStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,16 +34,16 @@ public class Result extends HashMap<String, Object> {
         return this;
     }
     public Result() {
-        put("code", 200);
-        put("msg", "成功");
+        put("code", HttpStatus.SUCCESS.getCode());
+        put("msg", HttpStatus.SUCCESS.getMessage());
     }
 
     public static Result error() {
-        return error("错误");
+        return error(HttpStatus.ERROR.getMessage());
     }
 
     public static Result error(String msg) {
-        return error(500,msg);
+        return error(HttpStatus.ERROR.getCode(), msg);
     }
 
     public static Result error(int code, String msg) {

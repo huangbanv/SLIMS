@@ -5,11 +5,9 @@ create table department
     id          varchar(3) primary key comment '编号  部门类型 X：行政 J：教学 S：系统管理',
     pid         varchar(3)  not null default 0 comment '上级编号',
     name        varchar(30) not null comment '部门名称',
-    sort        int unsigned auto_increment comment '排序',
     create_date datetime default current_timestamp COMMENT '创建时间',
     update_date datetime COMMENT '更新时间',
-    key idx_pid (pid),
-    key idx_sort (sort)
+    key idx_pid (pid)
 ) comment '部门';
 insert into department(id, name)
  VALUES ("S00","系统管理部"),
@@ -95,10 +93,8 @@ create table menu
     id          bigint primary key auto_increment COMMENT 'id',
     name        varchar(200) COMMENT '名称',
     menu_code   varchar(20) comment '菜单代码',
-    sort        int auto_increment COMMENT '排序',
     create_date datetime default current_timestamp COMMENT '创建时间',
-    update_date datetime default current_timestamp COMMENT '更新时间',
-    key idx_sort (sort)
+    update_date datetime default current_timestamp COMMENT '更新时间'
 ) COMMENT '菜单';
 insert into menu(name,menu_code)
 VALUES ("部门管理","department"),("班级管理","clazz"),("菜单管理","menu"),

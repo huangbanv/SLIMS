@@ -42,19 +42,14 @@ public class Menu implements Serializable {
     private String menuCode;
 
     /**
-     * 排序
-     */
-    private Integer sort;
-
-    /**
      * 创建时间
      */
-    private Timestamp createDate;
+    private String createDate;
 
     /**
      * 更新时间
      */
-    private Timestamp updateDate;
+    private String updateDate;
 
     @TableField(exist = false)
     private Integer permission;

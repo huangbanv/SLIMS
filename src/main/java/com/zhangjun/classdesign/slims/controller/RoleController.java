@@ -1,66 +1,95 @@
 package com.zhangjun.classdesign.slims.controller;
 
-
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhangjun.classdesign.slims.entity.Menu;
 import com.zhangjun.classdesign.slims.entity.Role;
+import com.zhangjun.classdesign.slims.enums.HttpStatus;
+import com.zhangjun.classdesign.slims.exception.RoleException;
+import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.RoleService;
-import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
-import com.zhangjun.classdesign.slims.util.RoleCheck;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+
 /**
- * <p>
- * 角色 前端控制器
- * </p>
- *
  * @author 张钧
  * @since 2022-05-27
  */
 @RestController
+@Slf4j
 @RequestMapping("/slims/role")
 public class RoleController {
 
-    @Autowired
+    @Resource
     RoleService roleService;
 
     @PutMapping
     public Result putRole(@RequestBody Role role){
-        if(RoleCheck.isAdmin()){
-            return roleService.save(role)?Result.ok():Result.error();
+        boolean b;
+        try {
+            b = roleService.putRole(role);
+        }catch (RoleException e){
+            log.error("添加角色权限不足，用户：{},错误信息：{},角色：{}", MyInterceptor.threadLocal.get(), e.getMessage(),role);
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        return Result.error();
+        if(b){
+            log.info("添加角色成功，用户：{},角色：{}", MyInterceptor.threadLocal.get(), role);
+            return Result.ok("添加角色成功");
+        }
+        log.warn("添加菜单失败，用户：{},角色：{}", MyInterceptor.threadLocal.get(),role);
+        return Result.error(500,"添加角色错误");
     }
 
     @DeleteMapping
     public Result deleteRole(@RequestParam("id")String id){
-        if(RoleCheck.isAdmin()){
-            return roleService.removeById(id)?Result.ok():Result.error();
+        boolean b;
+        try {
+            b = roleService.deleteRole(id);
+        }catch (RoleException e){
+            log.error("删除角色权限出错，用户：{},错误信息：{},角色id：{}", MyInterceptor.threadLocal.get(), e.getMessage(),id);
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        return Result.error();
+        if(b){
+            log.info("删除角色成功，用户：{},角色id：{}", MyInterceptor.threadLocal.get(), id);
+            return Result.ok("删除角色成功");
+        }
+        log.warn("删除角色失败，用户：{},角色id：{}", MyInterceptor.threadLocal.get(),id);
+        return Result.error(500,"删除角色错误");
     }
 
     @GetMapping
-    public Result listRole(@RequestParam("aimPage")Integer aimPage,
-                           @RequestParam("pageSize")Integer pageSize){
-        if(RoleCheck.isAdmin()){
-            Page<Role> rolePage = new Page<>();
-            rolePage.setSize(pageSize);
-            rolePage.setCurrent(aimPage);
-            Page<Role> page = roleService.page(rolePage);
-            return Result.ok().setData(page);
+    public Result listRole(){
+        Page<Role> page;
+        try {
+            page = roleService.listRole();
+        }catch (RoleException e){
+            log.error("查询角色权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        return Result.error();
+        log.info("查询角色成功，用户：{},查询结果：{}", MyInterceptor.threadLocal.get(), page.getRecords());
+        return Result.ok("查询角色成功").setData(page);
     }
 
     @PostMapping
     public Result updateRole(@RequestBody Role role){
-        if(RoleCheck.isAdmin()){
-            return roleService.updateById(role)?Result.ok():Result.error();
+        if(role.getId()==null){
+            log.error("角色信息输入错误，id不得为空，用户：{},角色：{}",MyInterceptor.threadLocal.get(),role);
+            return Result.error("角色id不得为空");
         }
-        return Result.error();
+        boolean b;
+        try {
+            b = roleService.updateRole(role);
+        }catch (RoleException e){
+            log.error("修改角色权限出错，用户：{},错误信息：{},角色：{}", MyInterceptor.threadLocal.get(), e.getMessage(),role);
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
+        }
+        if(b){
+            log.info("修改角色成功，用户：{},角色：{}", MyInterceptor.threadLocal.get(), role);
+            return Result.ok("修改角色成功");
+        }
+        log.warn("修改角色失败，用户：{},角色：{}", MyInterceptor.threadLocal.get(),role);
+        return Result.error(500,"修改角色错误");
     }
 }
 

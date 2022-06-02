@@ -42,12 +42,12 @@ public class Role implements Serializable {
     /**
      * 创建时间
      */
-    private Timestamp createDate;
+    private String createDate;
 
     /**
      * 更新时间
      */
-    private Timestamp updateDate;
+    private String updateDate;
 
 
 }

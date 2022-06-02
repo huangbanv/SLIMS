@@ -33,11 +33,9 @@ public interface DepartmentService extends IService<Department> {
     
     /**
      * 分页查询部门信息
-     * @param aimPage 目标页
-     * @param pageSize 页面大小
      * @return 部门信息
      */
-    Page<Department> listDepartment(Integer aimPage, Integer pageSize);
+    Page<Department> listDepartmentDetail();
     
     /**
      * 更新部门信息
@@ -46,4 +44,10 @@ public interface DepartmentService extends IService<Department> {
      * @throws RoleException 权限异常
      */
     boolean updateDepartment(Department department) throws RoleException;
+    
+    /**
+     * 仅提供id与部门名
+     * @return 部门列表
+     */
+    Page<Department> listDepartment();
 }

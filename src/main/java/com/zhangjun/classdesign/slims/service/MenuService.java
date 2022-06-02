@@ -20,7 +20,31 @@ public interface MenuService extends IService<Menu> {
      * @param aimPage 目标页
      * @param pageSize 页数
      * @return 菜单页
-     * @exception RoleException 无权限
+     * @throws  RoleException 无权限
      */
     Page<Menu> listMenu(Integer aimPage, Integer pageSize) throws RoleException;
+    
+    /**
+     * 创建菜单
+     * @param menu 菜单
+     * @return 是否创建成功
+     * @throws RoleException 无权限
+     */
+    boolean putMenu(Menu menu) throws RoleException;
+    
+    /**
+     * 更新菜单
+     * @param menu 菜单
+     * @return 是否更新成功
+     * @throws RoleException 无权限
+     */
+    boolean updateMenu(Menu menu) throws RoleException;
+    
+    /**
+     * 删除菜单
+     * @param id 菜单Id
+     * @return 是否删除成功
+     * @throws RoleException 无权限
+     */
+    boolean deleteMenu(Long id) throws RoleException;
 }

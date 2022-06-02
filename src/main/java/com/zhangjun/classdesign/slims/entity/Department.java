@@ -45,11 +45,6 @@ public class Department implements Serializable {
     private String name;
 
     /**
-     * 排序
-     */
-    private Integer sort;
-
-    /**
      * 创建时间
      */
     private String createDate;
