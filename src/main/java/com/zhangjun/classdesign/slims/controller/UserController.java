@@ -1,29 +1,20 @@
 package com.zhangjun.classdesign.slims.controller;
 
-
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhangjun.classdesign.slims.entity.Menu;
 import com.zhangjun.classdesign.slims.entity.User;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.UserService;
 import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * <p>
- * 用户 前端控制器
- * </p>
- *
  * @author 张钧
  * @since 2022-05-27
  */

@@ -12,10 +12,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * <p>
- * 请假条
- * </p>
- *
  * @author 张钧
  * @since 2022-05-27
  */

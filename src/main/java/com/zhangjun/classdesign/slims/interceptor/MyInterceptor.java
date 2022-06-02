@@ -3,9 +3,7 @@ package com.zhangjun.classdesign.slims.interceptor;
 import com.alibaba.fastjson.JSON;
 import com.zhangjun.classdesign.slims.entity.User;
 import com.zhangjun.classdesign.slims.util.Result;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

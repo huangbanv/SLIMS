@@ -9,10 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * <p>
- * 用户班级关系
- * </p>
- *
  * @author 张钧
  * @since 2022-05-27
  */

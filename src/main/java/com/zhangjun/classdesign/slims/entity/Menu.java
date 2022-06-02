@@ -11,10 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * <p>
- * 菜单
- * </p>
- *
  * @author 张钧
  * @since 2022-05-27
  */

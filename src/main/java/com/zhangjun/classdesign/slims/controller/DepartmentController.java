@@ -14,10 +14,6 @@ import javax.annotation.Resource;
 
 
 /**
- * <p>
- * 部门 前端控制器
- * </p>
- *
  * @author 张钧
  * @since 2022-05-27
  */

@@ -12,10 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * <p>
- * 角色菜单关系 前端控制器
- * </p>
- *
  * @author 张钧
  * @since 2022-05-27
  */
