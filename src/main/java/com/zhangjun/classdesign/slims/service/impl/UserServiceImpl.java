@@ -74,12 +74,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             RoleUserGroup userRole = roleGroupService.getOne(new QueryWrapper<RoleUserGroup>().eq("user_id", theOne.getId()));
             if (userRole != null) {
                 theOne.setRoleId(userRole.getRoleId());
-                Map<Long, Integer> menuPermission = menuGroupService.list(
+                List<Long> menuIds = menuGroupService.list(
                                 new QueryWrapper<RoleMenuGroup>().eq("role_id", userRole.getRoleId()))
-                        .stream().collect(Collectors.toMap(RoleMenuGroup::getMenuId, RoleMenuGroup::getPermissions));
-                if (menuPermission.size() > 0) {
-                    List<Menu> menus = menuService.list(new QueryWrapper<Menu>().in("id", menuPermission.keySet()));
-                    menus.forEach(menu -> menu.setPermission(menuPermission.get(menu.getId())));
+                        .stream().map(RoleMenuGroup::getMenuId).collect(Collectors.toList());
+                if (menuIds.size() > 0) {
+                    List<Menu> menus = menuService.list(new QueryWrapper<Menu>().in("id", menuIds));
                     theOne.setMenus(menus);
                 }
             }
@@ -230,6 +229,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public boolean updateInstructor(User user) throws RoleException {
+        if(RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()){
+            return updateById(user);
+        }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }
 
@@ -247,6 +249,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setRoleId(RoleEnum.COLLEGE_INSTRUCTOR.getCode());
             user.setDepartmentId(RoleCheck.getDepartmentId());
             return create(user);
+        }
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+    }
+
+    /**
+     * 删除辅导员信息
+     *
+     * @param id 辅导员id
+     * @return 是否删除成功
+     * @throws RoleException 无权限异常
+     */
+    @Override
+    public boolean deleteInstructor(Integer id) throws RoleException {
+        if(RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()){
+            return removeById(id);
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }

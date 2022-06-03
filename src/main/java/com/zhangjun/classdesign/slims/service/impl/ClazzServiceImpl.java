@@ -42,7 +42,7 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
     public Long getInstructorId(Long id) {
         UserClazzGroup userClazzGroup = userClazzGroupService.getOne(new QueryWrapper<UserClazzGroup>().eq("student_user_id", id));
         Clazz clazz = this.getOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
-        return clazz.getInstructorUserId();
+        return clazz.getInstructorId();
     }
     
     /**
@@ -53,19 +53,21 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
      */
     @Override
     public boolean putClazz(Clazz clazz) throws RoleException {
-        if(RoleCheck.isAdmin()){
+        if(RoleCheck.isAdmin()) {
             return save(clazz);
-        }else {
-            if(RoleCheck.getRoleCode().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
-                if(clazz.getDepartmentId().equals(RoleCheck.getDepartmentId())){
-                   return save(clazz);
-                }else {
-                    throw new RoleException("您与班级的部门不同");
-                }
-            }else {
-                throw new RoleException("您没有权限");
-            }
         }
+//        }else {
+//            if(RoleCheck.getRoleCode().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
+//                if(clazz.getDepartmentId().equals(RoleCheck.getDepartmentId())){
+//                   return save(clazz);
+//                }else {
+//                    throw new RoleException("您与班级的部门不同");
+//                }
+//            }else {
+//                throw new RoleException("您没有权限");
+//            }
+//        }
+        return false;
     }
     
     /**
@@ -76,20 +78,21 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
      */
     @Override
     public boolean deleteClazz(Long id) throws RoleException {
-        if(RoleCheck.isAdmin()){
-            return removeById(new Clazz().setId(id));
-        }else {
-            if(RoleCheck.getRoleCode().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
-                Clazz old = getOne(new QueryWrapper<Clazz>().eq("id",id));
-                if(RoleCheck.getDepartmentId().equals(old.getDepartmentId())){
-                    return removeById(new Clazz().setId(id));
-                }else {
-                    throw new RoleException("您与班级的部门不同");
-                }
-            }else {
-                throw new RoleException("您没有权限");
-            }
-        }
+//        if(RoleCheck.isAdmin()){
+//            return removeById(new Clazz().setId(id));
+//        }else {
+//            if(RoleCheck.getRoleCode().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
+//                Clazz old = getOne(new QueryWrapper<Clazz>().eq("id",id));
+//                if(RoleCheck.getDepartmentId().equals(old.getDepartmentId())){
+//                    return removeById(new Clazz().setId(id));
+//                }else {
+//                    throw new RoleException("您与班级的部门不同");
+//                }
+//            }else {
+//                throw new RoleException("您没有权限");
+//            }
+//        }
+        return false;
     }
     
     /**
@@ -114,19 +117,20 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
      */
     @Override
     public boolean updateClazz(Clazz clazz) throws RoleException {
-        if (RoleCheck.isAdmin()) {
-            return updateById(clazz);
-        } else {
-            if (RoleCheck.getRoleCode().equals(RoleEnum.COLLEGE_ADMIN.getCode())) {
-                Clazz old = getOne(new QueryWrapper<Clazz>().eq("id", clazz.getId()));
-                if (RoleCheck.getDepartmentId().equals(old.getDepartmentId())) {
-                    return updateById(clazz);
-                }else {
-                    throw new RoleException("您与班级的部门不同");
-                }
-            }else {
-                throw new RoleException("您没有权限");
-            }
-        }
+//        if (RoleCheck.isAdmin()) {
+//            return updateById(clazz);
+//        } else {
+//            if (RoleCheck.getRoleCode().equals(RoleEnum.COLLEGE_ADMIN.getCode())) {
+//                Clazz old = getOne(new QueryWrapper<Clazz>().eq("id", clazz.getId()));
+//                if (RoleCheck.getDepartmentId().equals(old.getDepartmentId())) {
+//                    return updateById(clazz);
+//                }else {
+//                    throw new RoleException("您与班级的部门不同");
+//                }
+//            }else {
+//                throw new RoleException("您没有权限");
+//            }
+//        }
+        return false;
     }
 }

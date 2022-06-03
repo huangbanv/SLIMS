@@ -61,7 +61,7 @@ public class DepartmentController {
         }
     }
 
-    @GetMapping("/listDetail")
+    @GetMapping
     public Result listDepartmentDetail(){
         Page<Department> result = departmentService.listDepartmentDetail();
         return Result.ok().setData(result);

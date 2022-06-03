@@ -50,36 +50,53 @@ public class InstructorController {
         try {
             b = userService.putInstructor(user);
         }catch (RoleException e){
-            log.error("添加菜单权限出错，用户：{},错误信息：{},菜单：{}", MyInterceptor.threadLocal.get(), e.getMessage(),user);
+            log.error("添加菜单权限出错，用户：{},错误信息：{},辅导员信息：{}", MyInterceptor.threadLocal.get(), e.getMessage(),user);
             return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
         if(b){
-            log.info("成功，用户：{},菜单：{}", MyInterceptor.threadLocal.get(), user);
+            log.info("成功，用户：{},辅导员信息：{}", MyInterceptor.threadLocal.get(), user);
             return Result.ok("添加菜单成功");
         }
-        log.warn("添加菜单失败，用户：{},菜单：{}", MyInterceptor.threadLocal.get(),user);
-        return Result.error(500,"添加菜单错误");
+        log.warn("添加辅导员失败，用户：{},辅导员信息：{}", MyInterceptor.threadLocal.get(),user);
+        return Result.error(500,"添加辅导员错误");
+    }
+
+    @DeleteMapping
+    public Result deleteInstructor(@RequestParam("id")Integer id){
+        boolean b;
+        try {
+            b = userService.deleteInstructor(id);
+        }catch (RoleException e){
+            log.error("删除辅导员权限出错，用户：{},错误信息：{},辅导员id：{}", MyInterceptor.threadLocal.get(), e.getMessage(),id);
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
+        }
+        if(b){
+            log.info("删除辅导员成功，用户：{},辅导员id：{}", MyInterceptor.threadLocal.get(), id);
+            return Result.ok("删除辅导员成功");
+        }
+        log.warn("删除辅导员失败，用户：{},辅导员id：{}", MyInterceptor.threadLocal.get(),id);
+        return Result.error(500,"删除辅导员错误");
     }
 
     @PostMapping
     public Result updateInstructor(@RequestBody User user){
         if(user.getId()==null){
-            log.error("菜单信息输入错误，id不得为空，用户：{},菜单：{}",MyInterceptor.threadLocal.get(),user);
-            return Result.error("菜单id不得为空");
+            log.error("辅导员信息输入错误，id不得为空，用户：{},菜单：{}",MyInterceptor.threadLocal.get(),user);
+            return Result.error("辅导员id不得为空");
         }
         boolean b;
         try {
             b = userService.updateInstructor(user);
         }catch (RoleException e){
-            log.error("修改菜单权限出错，用户：{},错误信息：{},菜单：{}", MyInterceptor.threadLocal.get(), e.getMessage(),user);
+            log.error("修改辅导员权限出错，用户：{},错误信息：{},辅导员：{}", MyInterceptor.threadLocal.get(), e.getMessage(),user);
             return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
         if(b){
-            log.info("修改菜单成功，用户：{},菜单：{}", MyInterceptor.threadLocal.get(),user);
+            log.info("修改辅导员成功，用户：{},辅导员：{}", MyInterceptor.threadLocal.get(),user);
             return Result.ok("修改菜单成功");
         }else {
-            log.warn("修改菜单失败，用户：{},菜单：{}", MyInterceptor.threadLocal.get(),user);
-            return Result.error("修改菜单失败");
+            log.warn("修改辅导员失败，用户：{},辅导员：{}", MyInterceptor.threadLocal.get(),user);
+            return Result.error("修改辅导员失败");
         }
     }
 }

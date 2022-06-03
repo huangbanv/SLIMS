@@ -35,11 +35,11 @@ public class UserClazzGroupController {
     public Result putUserClazzGroup(@RequestBody UserClazzGroup userClazzGroup){
         Clazz clazz = clazzService.getOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
         User user = MyInterceptor.threadLocal.get();
-        if(RoleCheck.isAdmin()||
-                ( user.getRoleId().equals(RoleEnum.COLLEGE_INSTRUCTOR.getCode())
-                        &&clazz.getDepartmentId().equals(user.getDepartmentId()))){
-            return userClazzGroupService.save(userClazzGroup)?Result.ok():Result.error();
-        }
+//        if(RoleCheck.isAdmin()||
+//                ( user.getRoleId().equals(RoleEnum.COLLEGE_INSTRUCTOR.getCode())
+//                        &&clazz.getDepartmentId().equals(user.getDepartmentId()))){
+//            return userClazzGroupService.save(userClazzGroup)?Result.ok():Result.error();
+//        }
         return Result.error(200,"权限不足");
     }
 
@@ -48,11 +48,11 @@ public class UserClazzGroupController {
         UserClazzGroup userClazzGroup = userClazzGroupService.getOne(new QueryWrapper<UserClazzGroup>().eq("id", id));
         Clazz clazz = clazzService.getOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
         User user = MyInterceptor.threadLocal.get();
-        if(RoleCheck.isAdmin()||
-                ( user.getRoleId().equals(RoleEnum.COLLEGE_INSTRUCTOR.getCode())
-                        &&clazz.getDepartmentId().equals(user.getDepartmentId()))){
-            return  userClazzGroupService.removeById(id)?Result.ok():Result.error();
-        }
+//        if(RoleCheck.isAdmin()||
+//                ( user.getRoleId().equals(RoleEnum.COLLEGE_INSTRUCTOR.getCode())
+//                        &&clazz.getDepartmentId().equals(user.getDepartmentId()))){
+//            return  userClazzGroupService.removeById(id)?Result.ok():Result.error();
+//        }
         return Result.error(200,"权限不足");
     }
 
@@ -82,11 +82,11 @@ public class UserClazzGroupController {
         UserClazzGroup oldOne = userClazzGroupService.getOne(new QueryWrapper<UserClazzGroup>().eq("id", userClazzGroup.getId()));
         Clazz clazz = clazzService.getOne(new QueryWrapper<Clazz>().eq("id", oldOne.getClazzId()));
         User user = MyInterceptor.threadLocal.get();
-        if(RoleCheck.isAdmin()||
-                ( user.getRoleId().equals(RoleEnum.COLLEGE_INSTRUCTOR.getCode())
-                        &&clazz.getDepartmentId().equals(user.getDepartmentId()))){
-            return userClazzGroupService.updateById(userClazzGroup)?Result.ok():Result.error();
-        }
+//        if(RoleCheck.isAdmin()||
+//                ( user.getRoleId().equals(RoleEnum.COLLEGE_INSTRUCTOR.getCode())
+//                        &&clazz.getDepartmentId().equals(user.getDepartmentId()))){
+//            return userClazzGroupService.updateById(userClazzGroup)?Result.ok():Result.error();
+//        }
         return Result.error(200,"权限不足");
     }
 }

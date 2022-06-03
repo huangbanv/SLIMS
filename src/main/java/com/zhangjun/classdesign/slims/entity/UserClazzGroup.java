@@ -28,22 +28,10 @@ public class UserClazzGroup implements Serializable {
     /**
      * 学生编号
      */
-    private Long studentUserId;
+    private Long studentId;
 
     /**
      * 班级编号
      */
     private String clazzId;
-
-    /**
-     * 开始时间
-     */
-    private Timestamp startTime;
-
-    /**
-     * 结束时间
-     */
-    private Timestamp endTime;
-
-
 }

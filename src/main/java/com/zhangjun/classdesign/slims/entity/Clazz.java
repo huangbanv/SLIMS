@@ -32,12 +32,7 @@ public class Clazz implements Serializable {
     /**
      * 辅导员编号
      */
-    private Long instructorUserId;
-
-    /**
-     * 所属专业编号
-     */
-    private String major;
+    private Long instructorId;
 
     /**
      * 年级
@@ -45,9 +40,13 @@ public class Clazz implements Serializable {
     private String grade;
 
     /**
-     * 所属部门
+     * 开始时间
      */
-    private String departmentId;
+    private String startTime;
 
+    /**
+     * 结束时间
+     */
+    private String endTime;
 
 }

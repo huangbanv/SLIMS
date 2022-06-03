@@ -11,6 +11,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 菜单 服务实现类
@@ -38,7 +40,21 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }
-    
+
+    /**
+     * 展示所有菜单
+     *
+     * @return 菜单列表
+     * @throws RoleException 无权限
+     */
+    @Override
+    public List<Menu> listAll() throws RoleException {
+        if(RoleCheck.isAdmin()){
+            return list();
+        }
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+    }
+
     /**
      * 删除菜单
      *

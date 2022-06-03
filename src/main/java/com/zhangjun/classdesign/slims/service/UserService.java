@@ -72,4 +72,12 @@ public interface UserService extends IService<User> {
      * @throws RoleException 无权限异常
      */
     boolean putInstructor(User user) throws RoleException;
+
+    /**
+     * 删除辅导员信息
+     * @param id 辅导员id
+     * @return 是否删除成功
+     * @throws RoleException 无权限异常
+     */
+    boolean deleteInstructor(Integer id) throws RoleException;
 }

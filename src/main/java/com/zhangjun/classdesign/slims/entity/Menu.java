@@ -37,6 +37,9 @@ public class Menu implements Serializable {
      */
     private String menuCode;
 
+    @TableField(exist = false)
+    private Long menuRoleId;
+
     /**
      * 创建时间
      */
@@ -46,7 +49,4 @@ public class Menu implements Serializable {
      * 更新时间
      */
     private String updateDate;
-
-    @TableField(exist = false)
-    private Integer permission;
 }

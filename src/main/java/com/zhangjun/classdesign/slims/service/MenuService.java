@@ -5,6 +5,8 @@ import com.zhangjun.classdesign.slims.entity.Menu;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 
+import java.util.List;
+
 /**
  * <p>
  * 菜单 服务类
@@ -47,4 +49,11 @@ public interface MenuService extends IService<Menu> {
      * @throws RoleException 无权限
      */
     boolean deleteMenu(Long id) throws RoleException;
+
+    /**
+     * 展示所有菜单
+     * @return 菜单列表
+     * @throws RoleException 无权限
+     */
+    List<Menu> listAll() throws RoleException;
 }

@@ -36,11 +36,6 @@ public class RoleMenuGroup implements Serializable {
     private Long menuId;
 
     /**
-     * 权限 4修改 2删除 1增加
-     */
-    private Integer permissions;
-
-    /**
      * 创建时间
      */
     private Timestamp createDate;
