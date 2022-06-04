@@ -19,34 +19,11 @@ import java.util.List;
 public interface UserService extends IService<User> {
 
     /**
-     * 登录验证
+     * 获取用户
      * @param user 用户
-     * @return 是否登录
+     * @return 获取到的用户信息
      */
     User getUser(User user);
-
-
-    /**
-     * 分页查询用户信息
-     * @param aimPage 目标页面
-     * @param pageSize 页面大小
-     * @return 用户列表
-     */
-    Page<User> getPage(Integer aimPage, Integer pageSize);
-
-    /**
-     * 删除用户
-     * @param id 用户Id
-     * @return 是否删除成功
-     */
-    boolean delete(Long id);
-
-    /**
-     * 修改用户信息
-     * @param user 用户信息
-     * @return 是否修改成功
-     */
-    boolean updateWithRole(User user);
 
     /**
      * 分页查找辅导员列表
@@ -86,5 +63,38 @@ public interface UserService extends IService<User> {
      * @return 辅导员列表
      * @throws RoleException 无权限异常
      */
-    List<User> listAllInstructor() throws RoleException;
+    List<User> listInstructor() throws RoleException;
+
+    /**
+     * 分页查询用户
+     * @param aimPage 目标页
+     * @param pageSize 页大小
+     * @return 用户页
+     * @throws RoleException 无权限异常
+     */
+    Page<User> listUser(Integer aimPage, Integer pageSize) throws RoleException;
+
+    /**
+     * 新增用户
+     * @param user 用户信息
+     * @return 是否添加成功
+     * @throws RoleException 无权限异常
+     */
+    boolean putUser(User user) throws RoleException;
+
+    /**
+     * 通过id删除用户
+     * @param id 用户id
+     * @return 是否删除成功
+     * @throws RoleException 无权限异常
+     */
+    boolean deleteUser(Long id) throws RoleException;
+
+    /**
+     * 更新用户信息
+     * @param user 用户信息
+     * @return 是否更新成功
+     * @throws RoleException 无权限异常
+     */
+    boolean updateUser(User user) throws RoleException;
 }

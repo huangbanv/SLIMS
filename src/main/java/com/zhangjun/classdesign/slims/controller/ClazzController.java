@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author 张钧
  * @since 2022-05-27
@@ -70,6 +72,19 @@ public class ClazzController {
         }
         log.info("分页查询班级成功，用户：{},班级：{}", MyInterceptor.threadLocal.get(),page.getRecords());
         return Result.ok().setData(page);
+    }
+
+    @GetMapping("/list")
+    public Result listClazzByRole(@RequestParam("id")String id) {
+        List<Clazz> list;
+        try {
+            list = clazzService.listClazz(id);
+        } catch (RoleException e) {
+            log.error("查询班级权限出错，用户：{}，错误信息：{}", MyInterceptor.threadLocal.get(),e.getMessage());
+            return Result.error(e.getMessage());
+        }
+        log.info("查询班级成功，用户：{},班级：{}", MyInterceptor.threadLocal.get(),list);
+        return Result.ok().setData(list);
     }
     
     @PostMapping

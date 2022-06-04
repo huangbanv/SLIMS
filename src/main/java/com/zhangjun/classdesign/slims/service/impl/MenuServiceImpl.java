@@ -81,12 +81,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     @Override
     public Page<Menu> listMenu(Integer aimPage, Integer pageSize) throws RoleException {
         if(RoleCheck.isAdmin()){
-            Page<Menu> menuPage = new Page<>();
-            menuPage.setSize(pageSize);
-            menuPage.setCurrent(aimPage);
-            menuPage.setRecords(this.list(new QueryWrapper<Menu>().last("limit " + (aimPage - 1) * pageSize + "," + pageSize)));
-            menuPage.setTotal(this.count());
-            return menuPage;
+            return new Page<Menu>().setSize(pageSize).setCurrent(aimPage).setRecords(this.list(new QueryWrapper<Menu>().last("limit " + (aimPage - 1) * pageSize + "," + pageSize))).setTotal(this.count());
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }

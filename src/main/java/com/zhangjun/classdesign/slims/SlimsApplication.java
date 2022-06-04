@@ -5,6 +5,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+/**
+ * @author 张钧的电脑
+ */
 @SpringBootApplication
 @MapperScan("com.zhangjun.classdesign.slims.mapper")
 public class SlimsApplication {

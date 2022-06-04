@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhangjun.classdesign.slims.entity.Clazz;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 
+import java.util.List;
+
 /**
  * <p>
  * 班级信息 服务类
@@ -47,6 +49,14 @@ public interface ClazzService extends IService<Clazz> {
      * @throws RoleException 无权限异常
      */
     Page<Clazz> listClazz(Integer aimPage, Integer pageSize) throws RoleException;
+
+    /**
+     * 通过部门id查询班级信息
+     * @param id 部门id
+     * @return 分页查找数据
+     * @throws RoleException 无权限异常
+     */
+    List<Clazz> listClazz(String id) throws RoleException;
     
     /**
      * 修改班级信息

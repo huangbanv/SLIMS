@@ -10,6 +10,9 @@ import com.zhangjun.classdesign.slims.enums.RoleEnum;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.mapper.ClazzMapper;
+import com.zhangjun.classdesign.slims.mapper.RoleUserGroupMapper;
+import com.zhangjun.classdesign.slims.mapper.UserClazzGroupMapper;
+import com.zhangjun.classdesign.slims.mapper.UserMapper;
 import com.zhangjun.classdesign.slims.service.ClazzService;
 import com.zhangjun.classdesign.slims.service.RoleUserGroupService;
 import com.zhangjun.classdesign.slims.service.UserClazzGroupService;
@@ -37,13 +40,13 @@ import java.util.stream.Collectors;
 public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements ClazzService {
 
     @Resource
-    UserClazzGroupService userClazzGroupService;
+    UserClazzGroupMapper userClazzGroupMapper;
 
     @Resource
-    UserService userService;
+    UserMapper userMapper;
 
     @Resource
-    RoleUserGroupService roleUserGroupService;
+    RoleUserGroupMapper roleUserGroupMapper;
 
     /**
      * 获取辅导员Id
@@ -53,7 +56,7 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
      */
     @Override
     public Long getInstructorId(Long id) {
-        UserClazzGroup userClazzGroup = userClazzGroupService.getOne(new QueryWrapper<UserClazzGroup>().eq("student_id", id));
+        UserClazzGroup userClazzGroup = userClazzGroupMapper.selectOne(new QueryWrapper<UserClazzGroup>().eq("student_id", id));
         Clazz clazz = this.getOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
         return clazz.getInstructorId();
     }
@@ -70,7 +73,7 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
         if (RoleCheck.isAdmin()) {
             return save(clazz);
         } else if (RoleCheck.isCollegeAdmin()) {
-            User one = userService.getOne(new QueryWrapper<User>().eq("id", clazz.getInstructorId()));
+            User one = userMapper.selectOne(new QueryWrapper<User>().eq("id", clazz.getInstructorId()));
             if (one.getDepartmentId().equals(RoleCheck.getUser().getDepartmentId())) {
                 return save(clazz);
             }
@@ -97,7 +100,7 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
             return removeById(id);
         } else if (RoleCheck.isCollegeAdmin()) {
             Clazz oldOne = getOne(new QueryWrapper<Clazz>().eq("id", id));
-            User one = userService.getOne(new QueryWrapper<User>().eq("id", oldOne.getInstructorId()));
+            User one = userMapper.selectOne(new QueryWrapper<User>().eq("id", oldOne.getInstructorId()));
             if (one.getDepartmentId().equals(RoleCheck.getUser().getDepartmentId())) {
                 return removeById(id);
             }
@@ -113,6 +116,27 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
     }
 
     /**
+     * 通过部门id查询班级信息
+     *
+     * @param id 部门id
+     * @return 分页查找数据
+     * @throws RoleException 无权限异常
+     */
+    @Override
+    public List<Clazz> listClazz(String id) throws RoleException {
+        QueryWrapper<Clazz> queryWrapper = new QueryWrapper<>();
+        if(RoleCheck.isAdmin()){
+        }else if (RoleCheck.isCollegeAdmin()){
+            List<Long> instructor = userMapper.selectList(new QueryWrapper<User>().eq("department_id",id))
+                    .stream().map(User::getId).collect(Collectors.toList());
+            queryWrapper.in("instructor_id",instructor);
+        }else {
+            throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+        }
+        return list(queryWrapper);
+    }
+
+    /**
      * 分页查询班级信息
      *
      * @param aimPage  目标页面
@@ -122,39 +146,32 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
      */
     @Override
     public Page<Clazz> listClazz(Integer aimPage, Integer pageSize) throws RoleException {
-        Page<Clazz> clazzPage = new Page<>();
-        clazzPage.setSize(pageSize);
-        clazzPage.setCurrent(aimPage);
         QueryWrapper<Clazz> clazzQueryWrapper = new QueryWrapper<>();
-        QueryWrapper<Clazz> queryWrapper = new QueryWrapper<>();
         Map<Long, String> departmentUsers = new HashMap<>();
         if (RoleCheck.isAdmin()) {
             String code = RoleEnum.COLLEGE_INSTRUCTOR.getCode();
-            List<Long> userIds = roleUserGroupService.list(new QueryWrapper<RoleUserGroup>().eq("role_id", code)).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
-            departmentUsers = userService.list(new QueryWrapper<User>().in("id", userIds)).stream().collect(Collectors.toMap(User::getId, User::getName));
+            List<Long> userIds = roleUserGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", code)).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+            departmentUsers = userMapper.selectList(new QueryWrapper<User>().in("id", userIds)).stream().collect(Collectors.toMap(User::getId, User::getName));
         } else if (RoleCheck.isCollegeAdmin()) {
             String departmentId = RoleCheck.getUser().getDepartmentId();
-            departmentUsers = userService.list(new QueryWrapper<User>().eq("department_id", departmentId))
+            departmentUsers = userMapper.selectList(new QueryWrapper<User>().eq("department_id", departmentId))
                     .stream().collect(Collectors.toMap(User::getId, User::getName));
-            List<String> clazzIds = userClazzGroupService.list(new QueryWrapper<UserClazzGroup>().in("instructor_id", departmentUsers.keySet()))
+            List<Long> clazzIds = userClazzGroupMapper.selectList(new QueryWrapper<UserClazzGroup>().in("instructor_id", departmentUsers.keySet()))
                     .stream().map(UserClazzGroup::getClazzId).collect(Collectors.toList());
             clazzQueryWrapper.in("id", clazzIds);
-            queryWrapper.in("id", clazzIds);
         } else if (RoleCheck.isCollegeInstructor()) {
             User user = RoleCheck.getUser();
             departmentUsers.put(user.getId(), user.getName());
             clazzQueryWrapper.eq("instructor_id", user.getId());
-            queryWrapper.eq("instructor_id", user.getId());
         } else {
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
-        clazzQueryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize);
-        List<Clazz> list = this.list(clazzQueryWrapper);
+        Page<Clazz> clazzPage = new Page<Clazz>().setSize(pageSize).setCurrent(aimPage).setTotal(this.count(clazzQueryWrapper));
+        List<Clazz> list = this.list(clazzQueryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize));
+        System.out.println(departmentUsers);
         Map<Long, String> finalDepartmentUsers = departmentUsers;
         list.forEach(clazz -> clazz.setInstructorName(finalDepartmentUsers.get(clazz.getInstructorId())));
-        clazzPage.setRecords(list);
-        clazzPage.setTotal(this.count(queryWrapper));
-        return clazzPage;
+        return clazzPage.setRecords(list);
     }
 
     /**
@@ -170,7 +187,7 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
             return updateById(clazz);
         } else if (RoleCheck.isCollegeAdmin()) {
             Clazz oldOne = getOne(new QueryWrapper<Clazz>().eq("id", clazz.getId()));
-            User one = userService.getOne(new QueryWrapper<User>().eq("id", oldOne.getInstructorId()));
+            User one = userMapper.selectOne(new QueryWrapper<User>().eq("id", oldOne.getInstructorId()));
             if (one.getDepartmentId().equals(RoleCheck.getUser().getDepartmentId())) {
                 return updateById(clazz);
             }

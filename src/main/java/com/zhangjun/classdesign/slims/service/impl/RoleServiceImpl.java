@@ -11,6 +11,8 @@ import com.zhangjun.classdesign.slims.util.Result;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 角色 服务实现类
@@ -59,9 +61,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
      * @throws RoleException 无权限异常
      */
     @Override
-    public Page<Role> listRole() throws RoleException {
+    public List<Role> listRole() throws RoleException {
         if(RoleCheck.isAdmin()){
-            return page(new Page<>());
+            return list();
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }

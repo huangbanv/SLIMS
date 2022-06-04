@@ -63,8 +63,8 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
      * @return 部门列表
      */
     @Override
-    public Page<Department> listDepartment() {
-        return page(new Page<>());
+    public List<Department> listDepartment() {
+        return list();
     }
     
     /**
@@ -72,14 +72,12 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
      * @return 部门信息
      */
     @Override
-    public Page<Department> listDepartmentDetail() {
-        Page<Department> page = new Page<>();
-        final Page<Department> result = page(page);
-        final List<Department> records = result.getRecords();
+    public List<Department> listDepartmentDetail() {
+        List<Department> result = list();
         List<Department> delete = new ArrayList<>();
-        for (Department record : records) {
+        for (Department record : result) {
             if(!"0".equals(record.getPid())){
-                for (Department department : records) {
+                for (Department department : result) {
                     if(department.getId().equals(record.getPid())){
                         department.getChildren().add(record);
                     }
@@ -88,7 +86,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
             }
         }
         for (Department department : delete) {
-            records.remove(department);
+            result.remove(department);
         }
         return result;
     }

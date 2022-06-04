@@ -1,7 +1,6 @@
 package com.zhangjun.classdesign.slims.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhangjun.classdesign.slims.entity.Menu;
 import com.zhangjun.classdesign.slims.entity.User;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.exception.RoleException;
@@ -41,15 +40,15 @@ public class InstructorController {
             log.warn("查询辅导员失败，用户：{}，目标页：{}，页大小：{}", MyInterceptor.threadLocal.get(),aimPage,pageSize);
             return Result.error("无数据");
         }
-        log.info("查询辅导员成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), page);
+        log.info("查询辅导员成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), page.getRecords());
         return Result.ok().setData(page);
     }
 
-    @GetMapping("/listAll")
-    public Result listAllInstructor(){
+    @GetMapping("/list")
+    public Result listInstructor(){
         List<User> list;
         try {
-            list = userService.listAllInstructor();
+            list = userService.listInstructor();
         } catch (RoleException e) {
             log.error("查询辅导员权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
             return Result.error(e.getMessage());

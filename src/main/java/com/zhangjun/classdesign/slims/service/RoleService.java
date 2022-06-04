@@ -5,6 +5,8 @@ import com.zhangjun.classdesign.slims.entity.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 
+import java.util.List;
+
 /**
  * <p>
  * 角色 服务类
@@ -44,5 +46,5 @@ public interface RoleService extends IService<Role> {
      * @return 角色页
      * @throws RoleException 无权限异常
      */
-    Page<Role> listRole() throws RoleException;
+    List<Role> listRole() throws RoleException;
 }

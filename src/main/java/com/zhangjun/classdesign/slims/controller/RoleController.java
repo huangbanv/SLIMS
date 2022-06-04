@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author 张钧
@@ -60,15 +61,15 @@ public class RoleController {
 
     @GetMapping
     public Result listRole(){
-        Page<Role> page;
+        List<Role> list;
         try {
-            page = roleService.listRole();
+            list = roleService.listRole();
         }catch (RoleException e){
             log.error("查询角色权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
             return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        log.info("查询角色成功，用户：{},查询结果：{}", MyInterceptor.threadLocal.get(), page.getRecords());
-        return Result.ok("查询角色成功").setData(page);
+        log.info("查询角色成功，用户：{},查询结果：{}", MyInterceptor.threadLocal.get(),list);
+        return Result.ok("查询角色成功").setData(list);
     }
 
     @PostMapping

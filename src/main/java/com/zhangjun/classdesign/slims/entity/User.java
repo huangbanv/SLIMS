@@ -92,10 +92,18 @@ public class User implements Serializable {
     @TableField(exist = false)
     private String roleId;
 
+    @TableField(exist = false)
+    private String roleName;
     /**
      * 可用的菜单栏
      */
     @TableField(exist = false)
     private List<Menu> menus;
+
+    @TableField(exist = false)
+    private Long clazzId;
+
+    @TableField(exist = false)
+    private String clazzName;
 
 }

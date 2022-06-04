@@ -33,5 +33,5 @@ public class UserClazzGroup implements Serializable {
     /**
      * 班级编号
      */
-    private String clazzId;
+    private Long clazzId;
 }

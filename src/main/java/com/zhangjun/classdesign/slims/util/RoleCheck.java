@@ -22,6 +22,9 @@ public class RoleCheck {
     public static boolean isStudent() {
         return MyInterceptor.threadLocal.get().getRoleId().equals(RoleEnum.STUDENT.getCode());
     }
+    public static boolean isSADAdmin() {
+        return MyInterceptor.threadLocal.get().getRoleId().equals(RoleEnum.SAD_ADMIN.getCode());
+    }
     public static User getUser(){
         return MyInterceptor.threadLocal.get();
     }

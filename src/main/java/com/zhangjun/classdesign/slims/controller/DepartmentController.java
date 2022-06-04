@@ -1,6 +1,5 @@
 package com.zhangjun.classdesign.slims.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.Department;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.exception.RoleException;
@@ -9,7 +8,6 @@ import com.zhangjun.classdesign.slims.service.DepartmentService;
 import com.zhangjun.classdesign.slims.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 
 
@@ -63,14 +61,12 @@ public class DepartmentController {
 
     @GetMapping
     public Result listDepartmentDetail(){
-        Page<Department> result = departmentService.listDepartmentDetail();
-        return Result.ok().setData(result);
+        return Result.ok().setData(departmentService.listDepartmentDetail());
     }
     
     @GetMapping("/list")
     public Result listDepartment(){
-        Page<Department> result = departmentService.listDepartment();
-        return Result.ok().setData(result);
+        return Result.ok().setData(departmentService.listDepartment());
     }
     
     @PostMapping

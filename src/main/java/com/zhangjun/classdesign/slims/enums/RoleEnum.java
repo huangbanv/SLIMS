@@ -9,14 +9,12 @@ public enum RoleEnum {
     /**
      *
      */
-    SYSTEM_ADMIN("0", "系统管理处"),
-    COLLEGE("1_1", "二级学院"),
-    STUDENT_AFFAIRS_DIVISION("1_2", "学生工作处"),
-    COLLEGE_ADMIN("2_1", "学院管理员"),
-    SAD_ADMIN("2_2", "学工处管理员"),
-    COLLEGE_INSTRUCTOR("3_1", "学院辅导员"),
-    SAD_WORKER("3_2", "学工处工作人员"),
-    STUDENT("4_1", "学生");
+    SYSTEM_ADMIN("0", "系统管理员"),
+    COLLEGE_ADMIN("1_1", "二级学院管理员"),
+    SAD_ADMIN("1_2", "学工处管理员"),
+    COLLEGE_INSTRUCTOR("2_1", "学院辅导员"),
+    SAD_WORKER("2_2", "学工处工作人员"),
+    STUDENT("3_1", "学生");
     private final String code;
     private final String roleName;
 
