@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author 张钧
@@ -42,6 +43,23 @@ public class InstructorController {
         }
         log.info("查询辅导员成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), page);
         return Result.ok().setData(page);
+    }
+
+    @GetMapping("/listAll")
+    public Result listAllInstructor(){
+        List<User> list;
+        try {
+            list = userService.listAllInstructor();
+        } catch (RoleException e) {
+            log.error("查询辅导员权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
+            return Result.error(e.getMessage());
+        }
+        if(list == null){
+            log.warn("查询辅导员失败，用户：{}", MyInterceptor.threadLocal.get());
+            return Result.error("无数据");
+        }
+        log.info("查询辅导员成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), list);
+        return Result.ok().setData(list);
     }
 
     @PutMapping

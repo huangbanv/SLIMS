@@ -247,8 +247,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean putInstructor(User user) throws RoleException {
         if (RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()) {
             user.setRoleId(RoleEnum.COLLEGE_INSTRUCTOR.getCode());
-            user.setDepartmentId(RoleCheck.getDepartmentId());
+            user.setDepartmentId(RoleCheck.getUser().getDepartmentId());
             return create(user);
+        }
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+    }
+
+    /**
+     * 查询所有辅导员
+     *
+     * @return 辅导员列表
+     * @throws RoleException 无权限异常
+     */
+    @Override
+    public List<User> listAllInstructor() throws RoleException {
+        if(RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()){
+            List<Long> userIds = roleGroupService.list(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
+                    .stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+            return list(new QueryWrapper<User>().in("id", userIds));
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }

@@ -80,4 +80,11 @@ public interface UserService extends IService<User> {
      * @throws RoleException 无权限异常
      */
     boolean deleteInstructor(Integer id) throws RoleException;
+
+    /**
+     * 查询所有辅导员
+     * @return 辅导员列表
+     * @throws RoleException 无权限异常
+     */
+    List<User> listAllInstructor() throws RoleException;
 }

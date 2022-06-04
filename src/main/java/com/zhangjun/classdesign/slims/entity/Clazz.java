@@ -1,10 +1,12 @@
 package com.zhangjun.classdesign.slims.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -34,6 +36,8 @@ public class Clazz implements Serializable {
      */
     private Long instructorId;
 
+    @TableField(exist = false)
+    private String instructorName;
     /**
      * 年级
      */

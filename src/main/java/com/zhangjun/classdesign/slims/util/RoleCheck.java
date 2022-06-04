@@ -1,5 +1,6 @@
 package com.zhangjun.classdesign.slims.util;
 
+import com.zhangjun.classdesign.slims.entity.User;
 import com.zhangjun.classdesign.slims.enums.RoleEnum;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 
@@ -21,10 +22,7 @@ public class RoleCheck {
     public static boolean isStudent() {
         return MyInterceptor.threadLocal.get().getRoleId().equals(RoleEnum.STUDENT.getCode());
     }
-    public static String getRoleCode(){
-        return MyInterceptor.threadLocal.get().getRoleId();
-    }
-    public static String getDepartmentId(){
-        return MyInterceptor.threadLocal.get().getDepartmentId();
+    public static User getUser(){
+        return MyInterceptor.threadLocal.get();
     }
 }

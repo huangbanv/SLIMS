@@ -59,9 +59,16 @@ public class ClazzController {
     }
     
     @GetMapping
-    public Result listClazz(@RequestParam("aimPage") Integer aimPage,
+    public Result listClazzByRole(@RequestParam("aimPage") Integer aimPage,
                             @RequestParam("pageSize") Integer pageSize) {
-        Page<Clazz> page = clazzService.listClazz(aimPage,pageSize);
+        Page<Clazz> page;
+        try {
+            page = clazzService.listClazz(aimPage,pageSize);
+        } catch (RoleException e) {
+            log.error("分页查询班级权限出错，用户：{}，错误信息：{}", MyInterceptor.threadLocal.get(),e.getMessage());
+            return Result.error(e.getMessage());
+        }
+        log.info("分页查询班级成功，用户：{},班级：{}", MyInterceptor.threadLocal.get(),page.getRecords());
         return Result.ok().setData(page);
     }
     

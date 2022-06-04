@@ -44,8 +44,9 @@ public interface ClazzService extends IService<Clazz> {
      * @param aimPage 目标页面
      * @param pageSize 页面大小
      * @return 分页查找数据
+     * @throws RoleException 无权限异常
      */
-    Page<Clazz> listClazz(Integer aimPage, Integer pageSize);
+    Page<Clazz> listClazz(Integer aimPage, Integer pageSize) throws RoleException;
     
     /**
      * 修改班级信息

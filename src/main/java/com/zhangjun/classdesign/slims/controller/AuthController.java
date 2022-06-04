@@ -44,7 +44,7 @@ public class AuthController {
                 map.put("userName",loginUser.getName());
                 map.put("menus",loginUser.getMenus());
                 log.info("用户登陆成功，用户：{}", loginUser);
-                return Result.ok().setData(map);
+                return Result.ok("登陆成功").setData(map);
             }
         }
         log.warn("用户登陆失败，用户：{}", user);
