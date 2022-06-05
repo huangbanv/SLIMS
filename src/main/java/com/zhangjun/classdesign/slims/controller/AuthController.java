@@ -1,12 +1,10 @@
 package com.zhangjun.classdesign.slims.controller;
 
 import com.zhangjun.classdesign.slims.entity.User;
-import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.UserService;
 import com.zhangjun.classdesign.slims.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.http.*;
@@ -65,13 +63,14 @@ public class AuthController {
 
     @GetMapping
     public Result logout(HttpSession session) {
-        ServletContext application = session.getServletContext();
         User loginUser = (User)session.getAttribute("loginUser");
         if(loginUser != null){
+            ServletContext application = session.getServletContext();
             Map<String, String> loginMap = (Map<String, String>)application.getAttribute("loginMap");
             loginMap.remove(loginUser.getAccount());
             application.setAttribute("loginMap",loginMap);
-            log.info("用户安全退出，用户：{}", MyInterceptor.threadLocal.get());
+            session.invalidate();
+            log.info("用户安全退出，用户：{}", loginUser);
             return Result.ok("已安全退出");
         }
         return Result.error(300, "请先登录");
