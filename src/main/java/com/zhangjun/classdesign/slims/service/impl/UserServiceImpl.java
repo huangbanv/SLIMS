@@ -206,6 +206,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean putUser(User user) throws RoleException {
         checkRole(user);
+        if(user.getRoleId().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
+            List<Long> roleIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", user.getRoleId())).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+            if(roleIds.size()>0){
+                List<String> admins = list(new QueryWrapper<User>().in("id", roleIds)).stream().map(User::getDepartmentId).collect(Collectors.toList());
+                for (String admin: admins) {
+                    if(admin.equals(user.getDepartmentId())){
+                        throw new RoleException("本学院已有管理员，不可继续添加");
+                    }
+                }
+            }
+        }
         return create(user);
     }
 

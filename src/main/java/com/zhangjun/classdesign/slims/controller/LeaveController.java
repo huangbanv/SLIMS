@@ -54,7 +54,7 @@ public class LeaveController {
     public Result listLeave(@RequestParam("aimPage")Integer aimPage,
                             @RequestParam("pageSize")Integer pageSize){
         Page<Leave> page = leaveService.listLeave(aimPage,pageSize);
-        if(page.getRecords().size()==0){
+        if(page.getRecords() == null || page.getRecords().size()==0){
             log.warn("查询请假失败，用户：{}", MyInterceptor.threadLocal.get());
             return Result.error("查询请假失败，可能无记录");
         }

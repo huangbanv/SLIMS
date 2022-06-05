@@ -91,13 +91,19 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
             List<Long> userIds = userMapper.selectList(new QueryWrapper<User>().eq("department_id", RoleCheck.getUser().getDepartmentId())).stream().map(User::getId).collect(Collectors.toList());
             leaveQueryWrapper.in("student_id",userIds);
         }
-        Page<Leave> leavePage = new Page<Leave>().setTotal(count(leaveQueryWrapper));
-        List<Leave> list = this.list(leaveQueryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize));
-        List<Long> userIds = Stream.of(list.stream().map(Leave::getStudentId).collect(Collectors.toList()), list.stream().map(Leave::getInstructorId).collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
-        Map<Long, String> names = userMapper.selectList(new QueryWrapper<User>().in("id", userIds)).stream().collect(Collectors.toMap(User::getId, User::getName));
-        list.forEach(leave -> {
-            leave.setStudentName(names.get(leave.getStudentId())).setInstructorName(names.get(leave.getInstructorId())).setTypeS(leave.getType()==0?"事假":"病假").setStatusS(map.get(leave.getStatus()));
-        });
+        long count = count(leaveQueryWrapper);
+        Page<Leave> leavePage = new Page<Leave>().setTotal(count);
+        List<Leave> list = null;
+        if(count != 0){
+            list = this.list(leaveQueryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize));
+            List<Long> userIds = Stream.of(list.stream().map(Leave::getStudentId).collect(Collectors.toList()), list.stream().map(Leave::getInstructorId).collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
+            if(userIds.size() > 0){
+                Map<Long, String> names = userMapper.selectList(new QueryWrapper<User>().in("id", userIds)).stream().collect(Collectors.toMap(User::getId, User::getName));
+                list.forEach(leave -> {
+                    leave.setStudentName(names.get(leave.getStudentId())).setInstructorName(names.get(leave.getInstructorId())).setTypeS(leave.getType()==0?"事假":"病假").setStatusS(map.get(leave.getStatus()));
+                });
+            }
+        }
         return leavePage.setSize(pageSize).setCurrent(aimPage).setRecords(list);
     }
 

@@ -168,7 +168,6 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
         }
         Page<Clazz> clazzPage = new Page<Clazz>().setSize(pageSize).setCurrent(aimPage).setTotal(this.count(clazzQueryWrapper));
         List<Clazz> list = this.list(clazzQueryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize));
-        System.out.println(departmentUsers);
         Map<Long, String> finalDepartmentUsers = departmentUsers;
         list.forEach(clazz -> clazz.setInstructorName(finalDepartmentUsers.get(clazz.getInstructorId())));
         return clazzPage.setRecords(list);

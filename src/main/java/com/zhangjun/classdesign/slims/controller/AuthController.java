@@ -8,10 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.ServletContext;
+import javax.servlet.http.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,19 +28,33 @@ public class AuthController {
 
     @PostMapping
     public Result login(@RequestBody User user,
-                        HttpSession session,
-                        HttpServletResponse response){
+                        HttpSession session) {
         User loginUser = userService.getUser(user);
-        if(loginUser != null){
-            if(loginUser.getStatus() == 0){
+        if (loginUser != null) {
+            ServletContext application = session.getServletContext();
+            Map<String, String> loginMap = (Map<String, String>) application.getAttribute("loginMap");
+            if (loginMap == null) {
+                loginMap = new HashMap<>();
+            } else {
+                for (String key : loginMap.keySet()) {
+                    if (user.getAccount().equals(key)) {
+                        if (session.getId().equals(loginMap.get(key))) {
+                            System.out.println("在同一地点多次登录！");
+                        } else {
+                            return Result.error("您的账号已在异地登陆");
+                        }
+                    }
+                }
+            }
+            if (loginUser.getStatus() == 0) {
                 return Result.error("您的账户已停用");
-            }else if(loginUser.getPassword().equals(user.getPassword())){
-                Cookie cookie = new Cookie("loginUser",loginUser.getName());
-                response.addCookie(cookie);
-                session.setAttribute("loginUser",loginUser);
-                Map<String,Object> map = new HashMap<>(2);
-                map.put("userName",loginUser.getName());
-                map.put("menus",loginUser.getMenus());
+            } else if (loginUser.getPassword().equals(user.getPassword())) {
+                loginMap.put(user.getAccount(), session.getId());
+                application.setAttribute("loginMap", loginMap);
+                session.setAttribute("loginUser", loginUser);
+                Map<String, Object> map = new HashMap<>(2);
+                map.put("userName", loginUser.getName());
+                map.put("menus", loginUser.getMenus());
                 log.info("用户登陆成功，用户：{}", loginUser);
                 return Result.ok("登陆成功").setData(map);
             }
@@ -52,13 +64,15 @@ public class AuthController {
     }
 
     @GetMapping
-    public Result logout(HttpServletRequest request,
-                         HttpSession session){
-        User loginUser = (User) request.getSession().getAttribute("loginUser");
+    public Result logout(HttpSession session) {
+        ServletContext application = session.getServletContext();
+        User loginUser = (User)session.getAttribute("loginUser");
         if(loginUser != null){
+            Map<String, String> loginMap = (Map<String, String>)application.getAttribute("loginMap");
+            loginMap.remove(loginUser.getAccount());
+            application.setAttribute("loginMap",loginMap);
             log.info("用户安全退出，用户：{}", MyInterceptor.threadLocal.get());
-            session.invalidate();
-            return Result.ok();
+            return Result.ok("已安全退出");
         }
         return Result.error(300, "请先登录");
     }

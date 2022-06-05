@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS slimsdb;
 create database slimsdb default character set utf8;
 use slimsdb;
 create table department
