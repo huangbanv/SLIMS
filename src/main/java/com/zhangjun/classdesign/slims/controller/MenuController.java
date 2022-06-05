@@ -71,10 +71,10 @@ public class MenuController {
             return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
         if(page.getRecords().size()==0){
-            log.warn("查询菜单失败，用户：{},记录：{}", MyInterceptor.threadLocal.get(),page);
+            log.warn("查询菜单失败，用户：{},记录：{}", MyInterceptor.threadLocal.get(),page.getRecords());
             return Result.error("查询菜单失败，可能无记录");
         }
-        log.info("查询菜单成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), page);
+        log.info("查询菜单成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), page.getRecords());
         return Result.ok().setData(page);
     }
 

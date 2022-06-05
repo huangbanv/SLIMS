@@ -5,103 +5,103 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.Leave;
+import com.zhangjun.classdesign.slims.entity.Menu;
 import com.zhangjun.classdesign.slims.entity.User;
+import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.enums.LeaveStatusEnum;
 import com.zhangjun.classdesign.slims.enums.RoleEnum;
+import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.ClazzService;
 import com.zhangjun.classdesign.slims.service.LeaveService;
 import com.zhangjun.classdesign.slims.util.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 /**
  * @author 张钧
  * @since 2022-05-27
  */
 @RestController
+@Slf4j
 @RequestMapping("/slims/leave")
 public class LeaveController {
 
-    @Autowired
+    @Resource
     LeaveService leaveService;
-
-    @Autowired
-    ClazzService clazzService;
-
 
     @PutMapping
     public Result putLeave(@RequestBody Leave leave){
-        User user = MyInterceptor.threadLocal.get();
-        if(!user.getRoleId().equals(RoleEnum.STUDENT.getCode())){
-            return Result.error();
+        boolean b;
+        try {
+            b = leaveService.putLeave(leave);
+        } catch (RoleException e) {
+            log.error("请假权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        leave.setStudentUserId(user.getId());
-        Long instructorId = clazzService.getInstructorId(user.getId());
-        if(instructorId!=null){
-            leave.setInstructorUserId(instructorId);
-            leave.setStatus(LeaveStatusEnum.NOT_APPROVED.getCode());
-            leaveService.save(leave);
-            return Result.ok();
+        if(b){
+            log.info("请假成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), leave);
+            return Result.ok("申请请假成功");
         }
-        return Result.error();
+        log.warn("请假失败，用户：{},记录：{}", MyInterceptor.threadLocal.get(),leave);
+        return Result.error("申请请假失败,请检查表单");
     }
 
     @GetMapping
     public Result listLeave(@RequestParam("aimPage")Integer aimPage,
                             @RequestParam("pageSize")Integer pageSize){
-        Page<Leave> leavePage = new Page<>();
-        leavePage.setSize(pageSize);
-        leavePage.setCurrent(aimPage);
-        Page<Leave> page = leaveService.page(leavePage, new QueryWrapper<Leave>().eq("instructor_user_id", MyInterceptor.threadLocal.get().getId()));
+        Page<Leave> page = leaveService.listLeave(aimPage,pageSize);
+        if(page.getRecords().size()==0){
+            log.warn("查询请假失败，用户：{}", MyInterceptor.threadLocal.get());
+            return Result.error("查询请假失败，可能无记录");
+        }
+        log.info("查询请假成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), page.getRecords());
         return Result.ok().setData(page);
     }
 
-    @GetMapping("/status")
-    public Result leaveStatus(){
-        User user = MyInterceptor.threadLocal.get();
-        if(!user.getRoleId().equals(RoleEnum.STUDENT.getCode())){
-            return Result.error();
-        }
-        Leave leave = leaveService.getOne(new QueryWrapper<Leave>().eq("student_user_id", user.getId()));
-        return Result.ok().setData(leave);
+    @PostMapping("/status")
+    public Result changeStatus(){
+        return Result.ok();
     }
 
     @PostMapping
-    public Result updateLeave(@RequestParam("status")String status,
-                              @RequestParam("id")Long id){
-        User user = MyInterceptor.threadLocal.get();
-        if(user.getRoleId().equals(RoleEnum.STUDENT.getCode())){
-            if(status.equals(LeaveStatusEnum.CANCELED.getCode())){
-                boolean update = leaveService.update(new UpdateWrapper<Leave>().set("status", status).eq("id", id));
-                if(update){
-                    return Result.ok();
-                }
-            }else if(status.equals(LeaveStatusEnum.TERMINATED.getCode())){
-                Leave leave = leaveService.getOne(new QueryWrapper<Leave>().eq("id", id));
-                if(leave.getStatus().equals(LeaveStatusEnum.APPROVED.getCode())){
-                    boolean update = leaveService.update(new UpdateWrapper<Leave>().set("status", status).eq("id", id));
-                    if(update){
-                        return Result.ok();
-                    }
-                }
-                return Result.error();
-            }
-            return Result.error();
-        }else if(user.getRoleId().equals(RoleEnum.COLLEGE_INSTRUCTOR.getCode())){
-            Leave leave = leaveService.getOne(new QueryWrapper<Leave>().eq("id", id));
-            if(leave.getInstructorUserId().equals(user.getId())){
-                if(status.equals(LeaveStatusEnum.APPROVED.getCode())||status.equals(LeaveStatusEnum.REFUSED.getCode())) {
-                    boolean update = leaveService.update(new UpdateWrapper<Leave>().set("status", status).eq("id", id));
-                    if (update) {
-                        return Result.ok();
-                    }
-                }
-            }else {
-                return Result.error();
-            }
+    public Result updateLeave(@RequestBody Leave leave){
+        boolean b;
+        try {
+            b = leaveService.updateLeave(leave);
+        } catch (RoleException e) {
+            log.error("修改请假单权限出错，用户：{},错误信息：{},请假单信息：{}"
+                    , MyInterceptor.threadLocal.get(), e.getMessage(),leave);
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
-        return Result.error();
+        if(b){
+            log.info("修改请假单成功，用户：{},请假单信息：{}", MyInterceptor.threadLocal.get(),leave);
+            return Result.ok("修改请假单成功");
+        }
+        log.warn("修改请假单失败，用户：{},请假单信息：{}", MyInterceptor.threadLocal.get(),leave);
+        return Result.error("修改请假单失败");
+    }
+
+    @DeleteMapping
+    public Result deleteLeave(@RequestParam("id")Integer id,
+                              @RequestParam("logicalDelete")Integer logicalDelete){
+        boolean b;
+        try {
+            b = leaveService.deleteLeave(id,logicalDelete);
+        } catch (RoleException e) {
+            log.error("删除请假单权限出错，用户：{},错误信息：{},删除请假单id:{},是否逻辑删除：{}"
+                    , MyInterceptor.threadLocal.get(), e.getMessage(), id,logicalDelete == 1?"是":"否");
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
+        }
+        if(b){
+            log.info("删除请假单成功，用户：{},删除请假单id:{},是否逻辑删除：{}", MyInterceptor.threadLocal.get(), id,logicalDelete == 1?"是":"否");
+            return Result.ok("删除或取消请假单成功");
+        }
+        log.warn("删除请假单失败，用户：{},删除请假单id:{},是否逻辑删除：{}", MyInterceptor.threadLocal.get(), id,logicalDelete == 1?"是":"否");
+        return Result.error("删除或取消请假单失败");
     }
 }
 

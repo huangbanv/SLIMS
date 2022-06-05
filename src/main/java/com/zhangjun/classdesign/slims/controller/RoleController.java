@@ -7,6 +7,7 @@ import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.RoleService;
 import com.zhangjun.classdesign.slims.util.Result;
+import com.zhangjun.classdesign.slims.util.RoleCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,6 +71,11 @@ public class RoleController {
         }
         log.info("查询角色成功，用户：{},查询结果：{}", MyInterceptor.threadLocal.get(),list);
         return Result.ok("查询角色成功").setData(list);
+    }
+
+    @GetMapping("/getRole")
+    public Result getRole(){
+        return Result.ok().setData(RoleCheck.getUser().getRoleId());
     }
 
     @PostMapping

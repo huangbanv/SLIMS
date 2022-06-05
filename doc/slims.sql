@@ -136,11 +136,9 @@ insert into role_menu_group(role_id, menu_id)
 value
     ("0","1"),("0","2"),("0","3"),("0","4"),("0","5"),("0","6"),("0","7"),("0","8"),
     ("1_1","2"),("1_1","4"),("1_1","6"),("1_1","7"),("1_1","8"),
-    ("1_2","2"),("1_2","4"),("1_2","6"),("1_2","7"),
-    ("2_1","2"),("2_1","4"),("2_1","6"),("2_1","7"),("2_1","8"),
-    ("2_2","6"),("2_2","7"),
-    ("3_1","2"),("3_1","4"),("3_1","6"),("3_1","7"),
-    ("3_2","7"),
+    ("1_2","6"),("1_2","7"),
+    ("2_1","2"),("2_1","4"),("2_1","6"),("2_1","7"),
+    ("2_2","7"),
     ("3_1","4");
 create table clazz
 (
@@ -186,9 +184,9 @@ create table `leave`
     type               char(1)       not null comment '请假类型  0：事假，1：病假',
     reason             varchar(255)  not null comment '请假原因',
     status             char(1)       not null default 0 comment '状态 0：未批准 1：已批准 2：已拒绝 3：已取消 4：已销假',
-    start_time         datetime      not null comment '起始时间',
-    end_time           datetime      not null comment '借书时间',
-    days               decimal(4, 2) not null comment '请假时长',
+    start_time         varchar(20)      not null comment '起始时间',
+    end_time           varchar(20)      not null comment '结束时间',
+    days               decimal(5, 3) not null comment '请假时长',
     create_time        datetime   default current_timestamp   not null comment '申请时间',
     key create_key (create_time)
 ) comment '请假条';

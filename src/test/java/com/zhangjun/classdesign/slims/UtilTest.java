@@ -33,4 +33,10 @@ public class UtilTest {
         String s1 = EntityField.upperCharToUnderLine(s);
         System.out.println(s1);
     }
+
+    public static void main(String[] args) {
+        int i = 789;
+        i = (i-i/100*100)/10;
+        System.out.println(i);
+    }
 }
