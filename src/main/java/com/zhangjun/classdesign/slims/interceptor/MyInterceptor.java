@@ -9,7 +9,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +50,6 @@ public class MyInterceptor implements HandlerInterceptor {
                 }
             }
         }
-        threadLocal.set(loginUser);
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }
 }

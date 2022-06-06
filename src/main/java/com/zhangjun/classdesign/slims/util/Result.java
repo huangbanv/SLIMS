@@ -2,9 +2,7 @@ package com.zhangjun.classdesign.slims.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,7 +1,5 @@
 package com.zhangjun.classdesign.slims.enums;
 
-import org.omg.CORBA.NO_PERMISSION;
-
 /**
  * @author 张钧
  */

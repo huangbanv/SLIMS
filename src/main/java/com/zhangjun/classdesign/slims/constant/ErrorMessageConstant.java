@@ -20,5 +20,4 @@ public class ErrorMessageConstant {
     public final static String APPLY_FAIL = "申请失败";
     public final static String DELETE_FAIL = "删除失败";
     public final static String TRANSFER_FAIL = "转让失败";
-
 }

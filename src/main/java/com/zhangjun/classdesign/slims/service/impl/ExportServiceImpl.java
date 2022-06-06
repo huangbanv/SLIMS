@@ -33,15 +33,6 @@ public class ExportServiceImpl implements ExportService {
     
     /**
      * 根据条件导出请假单
-     *
-     * @param map
-     * @param request
-     * @param response
-     * @param aimPage
-     * @param pageSize
-     * @param clazzId
-     * @param startDate
-     * @param endDate
      */
     @Override
     public void getByCondition(ModelMap map, HttpServletRequest request, HttpServletResponse response, Integer aimPage, Integer pageSize, Integer clazzId, String startDate, String endDate) throws RoleException {
@@ -53,10 +44,6 @@ public class ExportServiceImpl implements ExportService {
     
     /**
      * 导出所有请假单
-     *
-     * @param map
-     * @param request
-     * @param response
      */
     @Override
     public void getAll(ModelMap map, HttpServletRequest request, HttpServletResponse response) {

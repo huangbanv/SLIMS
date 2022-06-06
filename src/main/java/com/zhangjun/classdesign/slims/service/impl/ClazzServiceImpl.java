@@ -8,18 +8,12 @@ import com.zhangjun.classdesign.slims.entity.*;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.enums.RoleEnum;
 import com.zhangjun.classdesign.slims.exception.RoleException;
-import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.mapper.ClazzMapper;
 import com.zhangjun.classdesign.slims.mapper.RoleUserGroupMapper;
 import com.zhangjun.classdesign.slims.mapper.UserClazzGroupMapper;
 import com.zhangjun.classdesign.slims.mapper.UserMapper;
 import com.zhangjun.classdesign.slims.service.ClazzService;
-import com.zhangjun.classdesign.slims.service.RoleUserGroupService;
-import com.zhangjun.classdesign.slims.service.UserClazzGroupService;
-import com.zhangjun.classdesign.slims.service.UserService;
-import com.zhangjun.classdesign.slims.util.Result;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

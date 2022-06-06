@@ -6,20 +6,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.*;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.enums.LeaveStatusEnum;
-import com.zhangjun.classdesign.slims.enums.RoleEnum;
 import com.zhangjun.classdesign.slims.exception.RoleException;
-import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.mapper.ClazzMapper;
 import com.zhangjun.classdesign.slims.mapper.LeaveMapper;
 import com.zhangjun.classdesign.slims.mapper.UserMapper;
 import com.zhangjun.classdesign.slims.service.LeaveService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zhangjun.classdesign.slims.util.Result;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,7 +58,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         Leave leave = getOne(new QueryWrapper<Leave>().eq("id", id));
         if (RoleCheck.isStudent() && RoleCheck.getUser().getId().equals(leave.getStudentId())) {
             if (logicalDelete == 1) {
-                return updateById(leave.setStatus(Integer.valueOf(LeaveStatusEnum.CANCELED.getCode())));
+                return updateById(leave.setStatus(LeaveStatusEnum.CANCELED.getCode()));
             } else {
                 return removeById(id);
             }
@@ -108,7 +103,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
         Clazz clazz = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", RoleCheck.getUser().getClazzId()));
-        leave.setStudentId(RoleCheck.getUser().getId()).setInstructorId(clazz.getInstructorId()).setDays().setStatus(Integer.valueOf(LeaveStatusEnum.NOT_APPROVED.getCode()));
+        leave.setStudentId(RoleCheck.getUser().getId()).setInstructorId(clazz.getInstructorId()).setDays().setStatus(LeaveStatusEnum.NOT_APPROVED.getCode());
         if (leave.getDays().signum() != 1) {
             return false;
         }
@@ -190,9 +185,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
             List<Long> userIds = Stream.of(list.stream().map(Leave::getStudentId).collect(Collectors.toList()), list.stream().map(Leave::getInstructorId).collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
             if (userIds.size() > 0) {
                 Map<Long, String> names = userMapper.selectList(new QueryWrapper<User>().in("id", userIds)).stream().collect(Collectors.toMap(User::getId, User::getName));
-                list.forEach(leave -> {
-                    leave.setStudentName(names.get(leave.getStudentId())).setInstructorName(names.get(leave.getInstructorId())).setTypeS(leave.getType() == 0 ? "事假" : "病假").setStatusS(map.get(leave.getStatus()));
-                });
+                list.forEach(leave -> leave.setStudentName(names.get(leave.getStudentId())).setInstructorName(names.get(leave.getInstructorId())).setTypeS(leave.getType() == 0 ? "事假" : "病假").setStatusS(map.get(leave.getStatus())));
             }
             return list;
         }

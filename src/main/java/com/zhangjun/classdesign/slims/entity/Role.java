@@ -1,7 +1,5 @@
 package com.zhangjun.classdesign.slims.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import java.sql.Timestamp;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;

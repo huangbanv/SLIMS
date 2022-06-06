@@ -1,13 +1,11 @@
 package com.zhangjun.classdesign.slims.service.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.Role;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.mapper.RoleMapper;
 import com.zhangjun.classdesign.slims.service.RoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zhangjun.classdesign.slims.util.Result;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.stereotype.Service;
 

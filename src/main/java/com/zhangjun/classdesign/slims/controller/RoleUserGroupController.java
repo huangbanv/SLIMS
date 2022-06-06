@@ -1,15 +1,13 @@
 package com.zhangjun.classdesign.slims.controller;
 
-
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sun.javafx.scene.control.behavior.PaginationBehavior;
 import com.zhangjun.classdesign.slims.entity.RoleUserGroup;
 import com.zhangjun.classdesign.slims.service.RoleUserGroupService;
-import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.Result;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 /**
  * @author 张钧
@@ -19,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/slims/roleusergroup")
 public class RoleUserGroupController {
 
-    @Autowired
+    @Resource
     RoleUserGroupService roleUserGroupService;
 
     @PutMapping

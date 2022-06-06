@@ -7,7 +7,6 @@ import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.RoleMenuGroupService;
 import com.zhangjun.classdesign.slims.util.Result;
-import com.zhangjun.classdesign.slims.util.RoleCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
