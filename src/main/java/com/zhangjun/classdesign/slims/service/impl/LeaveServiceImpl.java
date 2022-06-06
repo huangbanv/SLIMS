@@ -41,12 +41,12 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     @Resource
     UserMapper userMapper;
 
-    Map<Integer,String> map = new HashMap<Integer,String>(){{
-        put(0,"未批准");
-        put(1,"已批准");
-        put(2,"已拒绝");
-        put(3,"已取消");
-        put(4,"已销假");
+    Map<Integer, String> map = new HashMap<Integer, String>() {{
+        put(0, "未批准");
+        put(1, "已批准");
+        put(2, "已拒绝");
+        put(3, "已取消");
+        put(4, "已销假");
     }};
 
 
@@ -61,10 +61,10 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     @Override
     public boolean deleteLeave(Integer id, Integer logicalDelete) throws RoleException {
         Leave leave = getOne(new QueryWrapper<Leave>().eq("id", id));
-        if(RoleCheck.isStudent() && RoleCheck.getUser().getId().equals(leave.getStudentId())){
-            if(logicalDelete == 1){
+        if (RoleCheck.isStudent() && RoleCheck.getUser().getId().equals(leave.getStudentId())) {
+            if (logicalDelete == 1) {
                 return updateById(leave.setStatus(Integer.valueOf(LeaveStatusEnum.CANCELED.getCode())));
-            }else {
+            } else {
                 return removeById(id);
             }
         }
@@ -91,7 +91,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         }
         long count = count(leaveQueryWrapper);
         Page<Leave> leavePage = new Page<Leave>().setTotal(count);
-        List<Leave> list = fillFields(count,leaveQueryWrapper,aimPage,pageSize);
+        List<Leave> list = fillFields(count, leaveQueryWrapper, aimPage, pageSize);
         return leavePage.setSize(pageSize).setCurrent(aimPage).setRecords(list);
     }
 
@@ -104,12 +104,12 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
      */
     @Override
     public boolean putLeave(Leave leave) throws RoleException {
-        if(!RoleCheck.isStudent()){
+        if (!RoleCheck.isStudent()) {
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
         Clazz clazz = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", RoleCheck.getUser().getClazzId()));
         leave.setStudentId(RoleCheck.getUser().getId()).setInstructorId(clazz.getInstructorId()).setDays().setStatus(Integer.valueOf(LeaveStatusEnum.NOT_APPROVED.getCode()));
-        if(leave.getDays().signum() != 1){
+        if (leave.getDays().signum() != 1) {
             return false;
         }
         return save(leave);
@@ -125,16 +125,16 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     @Override
     public boolean updateLeave(Leave leave) throws RoleException {
         Leave oldOne = getOne(new QueryWrapper<Leave>().eq("id", leave.getId()));
-        if(RoleCheck.isStudent() && RoleCheck.getUser().getId().equals(oldOne.getStudentId())){
-            if(leave.getStatus().equals(LeaveStatusEnum.NOT_APPROVED.getCode())){
+        if (RoleCheck.isStudent() && RoleCheck.getUser().getId().equals(oldOne.getStudentId())) {
+            if (leave.getStatus().equals(LeaveStatusEnum.NOT_APPROVED.getCode())) {
                 return updateById(leave);
-            }else if (leave.getStatus().equals(LeaveStatusEnum.CANCELED.getCode())){
+            } else if (leave.getStatus().equals(LeaveStatusEnum.CANCELED.getCode())) {
                 return updateById(leave.setStatus(LeaveStatusEnum.NOT_APPROVED.getCode()));
             }
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }
-    
+
     /**
      * 根据班级和时间段查询请假情况
      *
@@ -142,22 +142,22 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
      * @param pageSize  页大小
      * @param clazzId   班级Id
      * @param startDate 开始时间
-     * @param endDate 结束时间
+     * @param endDate   结束时间
      * @return 请假情况
      * @throws RoleException 无权限异常
      */
     @Override
-    public Page<Leave> listLeaveByClazzAndTime(Integer aimPage, Integer pageSize, Integer clazzId,String startDate,String endDate) throws RoleException {
+    public Page<Leave> listLeaveByClazzAndTime(Integer aimPage, Integer pageSize, Integer clazzId, String startDate, String endDate) throws RoleException {
         if (RoleCheck.isStudent()) {
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
         Long instructorId = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", clazzId)).getInstructorId();
         QueryWrapper<Leave> leaveQueryWrapper = new QueryWrapper<Leave>().eq("instructor_id", instructorId).gt("start_time", startDate).lt("end_time", endDate);
         long count = count(leaveQueryWrapper);
-        List<Leave> list = fillFields(count,leaveQueryWrapper,aimPage,pageSize);
+        List<Leave> list = fillFields(count, leaveQueryWrapper, aimPage, pageSize);
         return new Page<Leave>().setSize(pageSize).setCurrent(aimPage).setTotal(count).setRecords(list);
     }
-    
+
     /**
      * 更新请假单状态
      *
@@ -169,21 +169,21 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     @Override
     public boolean changeStatus(Integer id, Integer status) throws RoleException {
         final Leave leave = getOne(new QueryWrapper<Leave>().eq("id", id));
-        if(LeaveStatusEnum.APPROVED.getCode().equals(status) || LeaveStatusEnum.REFUSED.getCode().equals(status)){
-            if(RoleCheck.getUser().getId().equals(leave.getInstructorId())){
-                return update(new UpdateWrapper<Leave>().set("status",status).eq("id",id));
+        if (LeaveStatusEnum.APPROVED.getCode().equals(status) || LeaveStatusEnum.REFUSED.getCode().equals(status)) {
+            if (RoleCheck.getUser().getId().equals(leave.getInstructorId())) {
+                return update(new UpdateWrapper<Leave>().set("status", status).eq("id", id));
             }
         } else if (LeaveStatusEnum.TERMINATED.getCode().equals(status)) {
-            if(RoleCheck.getUser().getId().equals(leave.getStudentId())){
-                return update(new UpdateWrapper<Leave>().set("status",status).eq("id",id));
+            if (RoleCheck.getUser().getId().equals(leave.getStudentId())) {
+                return update(new UpdateWrapper<Leave>().set("status", status).eq("id", id));
             }
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }
-    
-    private List<Leave> fillFields(Long count,QueryWrapper<Leave> leaveQueryWrapper,Integer aimPage,Integer pageSize){
+
+    private List<Leave> fillFields(Long count, QueryWrapper<Leave> leaveQueryWrapper, Integer aimPage, Integer pageSize) {
         if (count != 0) {
-            if(aimPage != 0){
+            if (aimPage != 0) {
                 leaveQueryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize);
             }
             List<Leave> list = list(leaveQueryWrapper);
