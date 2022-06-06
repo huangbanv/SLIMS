@@ -172,7 +172,21 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
         list.forEach(clazz -> clazz.setInstructorName(finalDepartmentUsers.get(clazz.getInstructorId())));
         return clazzPage.setRecords(list);
     }
-
+    
+    /**
+     * 查询所有班级名称
+     *
+     * @return 班级名称
+     * @throws RoleException 无权限异常
+     */
+    @Override
+    public List<Clazz> listAllClazz() throws RoleException {
+        if(RoleCheck.isStudent()){
+            throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+        }
+        return list();
+    }
+    
     /**
      * 修改班级信息
      *

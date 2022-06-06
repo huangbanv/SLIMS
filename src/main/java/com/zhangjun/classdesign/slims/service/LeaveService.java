@@ -47,4 +47,25 @@ public interface LeaveService extends IService<Leave> {
      * @throws RoleException 无权限异常
      */
     boolean updateLeave(Leave leave) throws RoleException;
+    
+    /**
+     * 更新请假单状态
+     * @param id 请假单id
+     * @param status 状态
+     * @return 是否修改成功
+     * @throws RoleException 无权限异常
+     */
+    boolean changeStatus(Integer id, Integer status) throws RoleException;
+    
+    /**
+     * 根据班级和时间段查询请假情况
+     * @param aimPage 目标页
+     * @param pageSize 页大小
+     * @param clazzId 班级Id
+     * @param startDate 开始时间
+     * @param endDate 结束时间
+     * @return 请假情况
+     * @throws RoleException 无权限异常
+     */
+    Page<Leave> listLeaveByClazzAndTime(Integer aimPage, Integer pageSize, Integer clazzId, String startDate,String endDate) throws RoleException;
 }

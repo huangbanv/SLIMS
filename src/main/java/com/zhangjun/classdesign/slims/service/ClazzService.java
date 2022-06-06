@@ -65,4 +65,11 @@ public interface ClazzService extends IService<Clazz> {
      * @throws RoleException 没有权限异常
      */
     boolean updateClazz(Clazz clazz) throws RoleException;
+    
+    /**
+     * 查询所有班级名称
+     * @return 班级名称
+     * @throws RoleException 无权限异常
+     */
+    List<Clazz> listAllClazz() throws RoleException;
 }

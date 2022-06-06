@@ -36,10 +36,9 @@ public class AuthController {
             } else {
                 for (String key : loginMap.keySet()) {
                     if (user.getAccount().equals(key)) {
-                        if (session.getId().equals(loginMap.get(key))) {
-                            System.out.println("在同一地点多次登录！");
-                        } else {
-                            return Result.error("您的账号已在异地登陆");
+                        if (!session.getId().equals(loginMap.get(key))) {
+                            //异地登录挤掉对方
+                            loginMap.remove(loginUser.getAccount());
                         }
                     }
                 }

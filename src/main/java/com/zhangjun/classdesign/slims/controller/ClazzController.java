@@ -87,6 +87,19 @@ public class ClazzController {
         return Result.ok().setData(list);
     }
     
+    @GetMapping("/listAll")
+    public Result listAllClazz() {
+        List<Clazz> list;
+        try {
+            list = clazzService.listAllClazz();
+        } catch (RoleException e) {
+            log.error("查询班级权限出错，用户：{}，错误信息：{}", MyInterceptor.threadLocal.get(),e.getMessage());
+            return Result.error(e.getMessage());
+        }
+        log.info("查询班级成功，用户：{},班级：{}", MyInterceptor.threadLocal.get(),list);
+        return Result.ok().setData(list);
+    }
+    
     @PostMapping
     public Result updateClazz(@RequestBody Clazz clazz) {
         boolean b;

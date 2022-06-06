@@ -185,8 +185,8 @@ create table `leave`
     type               char(1)       not null comment '请假类型  0：事假，1：病假',
     reason             varchar(255)  not null comment '请假原因',
     status             char(1)       not null default 0 comment '状态 0：未批准 1：已批准 2：已拒绝 3：已取消 4：已销假',
-    start_time         varchar(20)      not null comment '起始时间',
-    end_time           varchar(20)      not null comment '结束时间',
+    start_time         timestamp      not null comment '起始时间',
+    end_time           timestamp      not null comment '结束时间',
     days               decimal(5, 3) not null comment '请假时长',
     create_time        datetime   default current_timestamp   not null comment '申请时间',
     key create_key (create_time)
