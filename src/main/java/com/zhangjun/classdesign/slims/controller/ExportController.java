@@ -1,10 +1,11 @@
 package com.zhangjun.classdesign.slims.controller;
 
-
 import com.zhangjun.classdesign.slims.exception.RoleException;
-import com.zhangjun.classdesign.slims.service.ExcelService;
+import com.zhangjun.classdesign.slims.service.ExportService;
 import com.zhangjun.classdesign.slims.util.Result;
+import com.zhangjun.classdesign.slims.util.RoleCheck;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -18,33 +19,35 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/slims/export")
 @Slf4j
 public class ExportController {
-
+    
     @Resource
-    ExcelService excelService;
+    ExportService exportService;
 
     @GetMapping
-    public String getAll(HttpServletResponse response) {
-        try {
-            excelService.export(response,0,0,null,null,null);
-        } catch (RoleException e) {
-            e.printStackTrace();
-        }
-        return "success";
+    public Result getAll(ModelMap map,
+                         HttpServletRequest request,
+                         HttpServletResponse response) {
+        exportService.getAll(map,request,response);
+        log.info("已导出所有请假单 导出人：{}", RoleCheck.getUser());
+        return Result.ok();
     }
 
     @GetMapping("/byCondition")
-    public String getByCondition(@RequestParam("aimPage") Integer aimPage,
+    public Result getByCondition(ModelMap map,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response,
+                                 @RequestParam("aimPage") Integer aimPage,
                                  @RequestParam("pageSize") Integer pageSize,
                                  @RequestParam("clazzId") Integer clazzId,
                                  @RequestParam("startDate") String startDate,
-                                 @RequestParam("endDate") String endDate,
-                                 HttpServletResponse response) {
+                                 @RequestParam("endDate") String endDate) {
         try {
-            excelService.export(response,aimPage,pageSize,clazzId,startDate,endDate);
+            exportService.getByCondition(map,request,response,aimPage,pageSize,clazzId,startDate,endDate);
         } catch (RoleException e) {
             e.printStackTrace();
         }
-        return "success";
+        log.info("已分页导出请假单 导出人：{}，目标页：{}，页大小：{}，班级id:{},开始时间：{}，结束时间：{}",
+                RoleCheck.getUser(),aimPage,pageSize,clazzId,startDate,endDate);
+        return Result.ok();
     }
-
 }

@@ -62,7 +62,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
      */
     @Override
     public List<Role> listRole() throws RoleException {
-        if(RoleCheck.isAdmin()){
+        if(!RoleCheck.isStudent() || !RoleCheck.isSADWorker()){
             return list();
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());

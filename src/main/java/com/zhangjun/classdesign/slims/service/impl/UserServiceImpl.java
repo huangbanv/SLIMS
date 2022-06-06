@@ -166,6 +166,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean updateUser(User user) throws RoleException {
         User oldUser = getUser(user);
         checkRole(oldUser);
+        if(user.getRoleId().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
+            List<Long> userIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_ADMIN.getCode())).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+            List<String> departmentIds = list(new QueryWrapper<User>().in("id", userIds)).stream().map(User::getDepartmentId).collect(Collectors.toList());
+            for (String departmentId : departmentIds) {
+                if(user.getDepartmentId().equals(departmentId)){
+                    throw new RoleException("该学院已存在管理员");
+                }
+            }
+        }
         roleGroupMapper.update(new RoleUserGroup().setRoleId(user.getRoleId()), new QueryWrapper<RoleUserGroup>().eq("user_id", user.getId()));
         if (user.getClazzId() != null && oldUser.getRoleId().equals(RoleEnum.STUDENT.getCode()) && oldUser.getRoleId().equals(user.getRoleId())) {
             UserClazzGroup userClazzGroup = clazzGroupMapper.selectOne(new QueryWrapper<UserClazzGroup>().eq("student_id", oldUser.getId()));
@@ -232,7 +241,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if ((!user.getRoleId().equals(RoleEnum.STUDENT.getCode())) || !(user.getDepartmentId().equals(RoleCheck.getUser().getDepartmentId()))) {
                 throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
             }
-        } else {
+        }else if(RoleCheck.isSADAdmin()){
+            if(!user.getDepartmentId().equals(RoleCheck.getUser().getDepartmentId())){
+                throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+            }
+        }else {
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
     }

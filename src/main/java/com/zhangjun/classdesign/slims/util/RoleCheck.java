@@ -25,6 +25,9 @@ public class RoleCheck {
     public static boolean isSADAdmin() {
         return MyInterceptor.threadLocal.get().getRoleId().equals(RoleEnum.SAD_ADMIN.getCode());
     }
+    public static boolean isSADWorker() {
+        return MyInterceptor.threadLocal.get().getRoleId().equals(RoleEnum.SAD_WORKER.getCode());
+    }
     public static User getUser(){
         return MyInterceptor.threadLocal.get();
     }

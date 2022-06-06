@@ -38,5 +38,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/slims/auth","/slims/clazz/listAll","/slims/leave","/slims/leave/byClazzAndTime",
                         "/slims/export","/slims/export/byCondition","/slims/user","/slims/user/**","/slims/department/list",
                         "/slims/role","/slims/clazz/list");
+        registry.addInterceptor(new CollegeAdminInterceptor())
+                .addPathPatterns("/slims/department","/slims/department/**","slims/menu","/slims/menu/**",
+                        "slims/role/**")
+                .excludePathPatterns("/slims/department/list","/slims/role/getRole");
     }
 }
