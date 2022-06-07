@@ -6,10 +6,8 @@ import com.zhangjun.classdesign.slims.enums.RoleEnum;
 import com.zhangjun.classdesign.slims.util.Result;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.web.servlet.HandlerInterceptor;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author 张钧

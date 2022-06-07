@@ -340,21 +340,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public Page<User> getInstructorList(Integer aimPage, Integer pageSize) throws RoleException {
-        if (RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()) {
-            Page<User> userPage = new Page<>();
-            List<Long> instructorIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>()
-                            .eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
-                    .stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
-            QueryWrapper<User> queryWrapper = new QueryWrapper<User>().in("id", instructorIds);
-            userPage.setTotal(count(queryWrapper));
-            userPage.setSize(pageSize);
-            userPage.setCurrent(aimPage);
-            List<User> instructors = list(queryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize));
-            setBaseInfo(instructors);
-            userPage.setRecords(instructors);
-            return userPage;
+        if (!RoleCheck.isCollegeAdmin() && !RoleCheck.isAdmin()) {
+            throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
-        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+        Page<User> userPage = new Page<>();
+        List<Long> instructorIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>()
+                        .eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
+                .stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+        QueryWrapper<User> queryWrapper = new QueryWrapper<User>().in("id", instructorIds);
+        if(!RoleCheck.isAdmin()){
+            queryWrapper.eq("department_id",RoleCheck.getUser().getDepartmentId());
+        }
+        userPage.setTotal(count(queryWrapper));
+        userPage.setSize(pageSize);
+        userPage.setCurrent(aimPage);
+        List<User> instructors = list(queryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize));
+        setBaseInfo(instructors);
+        userPage.setRecords(instructors);
+        return userPage;
     }
 
     /**
@@ -397,12 +400,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public List<User> listInstructor() throws RoleException {
-        if (RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()) {
-            List<Long> userIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
-                    .stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
-            return list(new QueryWrapper<User>().in("id", userIds));
+        if(!RoleCheck.isCollegeAdmin() && !RoleCheck.isCollegeAdmin() && !RoleCheck.isCollegeInstructor()){
+            throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
-        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+        List<Long> userIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
+                .stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.in("id", userIds);
+        if(RoleCheck.isCollegeInstructor()){
+            userQueryWrapper.eq("department_id",RoleCheck.getUser().getDepartmentId());
+        }
+        return list(userQueryWrapper);
     }
 
     /**

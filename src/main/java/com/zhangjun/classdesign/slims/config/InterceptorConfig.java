@@ -29,7 +29,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/slims/auth","/slims/class/**","/slims/class","/slims/leave","/slims/leave/**",
                         "/slims/export","/slims/export/byCondition","/slims/user","/slims/user/**","/slims/instructor/list",
-                        "/slims/role/getRole","/slims/department/list","/slims/role","/slims/clazz/list");
+                        "/slims/role/getRole","/slims/department/list","/slims/role","/slims/clazz/**","/slims/clazz");
         registry.addInterceptor(new SADAdminInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns("/slims/auth","/slims/clazz/listAll","/slims/leave","/slims/leave/byClazzAndTime",

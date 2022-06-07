@@ -4,6 +4,7 @@ import com.zhangjun.classdesign.slims.entity.User;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.UserService;
 import com.zhangjun.classdesign.slims.util.Result;
+import com.zhangjun.classdesign.slims.util.RoleCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -53,7 +54,6 @@ public class AuthController {
                 Map<String, Object> map = new HashMap<>(2);
                 map.put("userName", loginUser.getName());
                 map.put("menus", loginUser.getMenus());
-                MyInterceptor.threadLocal.set(loginUser);
                 log.info("用户登陆成功，用户：{}", loginUser);
                 return Result.ok("登陆成功").setData(map);
             }
@@ -71,7 +71,6 @@ public class AuthController {
             loginMap.remove(loginUser.getAccount());
             application.setAttribute("loginMap",loginMap);
             session.invalidate();
-            MyInterceptor.threadLocal.remove();
             log.info("用户安全退出，用户：{}", loginUser);
             return Result.ok("已安全退出");
         }
