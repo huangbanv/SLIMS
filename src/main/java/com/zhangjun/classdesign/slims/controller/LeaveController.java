@@ -82,15 +82,15 @@ public class LeaveController {
         try {
             b = leaveService.changeStatus(id, status);
         } catch (RoleException e) {
-            log.error("修改请假单权限出错，用户：{},错误信息：{},请假单id：{},状态：{}"
+            log.error("修改请假单状态权限出错，用户：{},错误信息：{},请假单id：{},状态：{}"
                     , MyInterceptor.threadLocal.get(), e.getMessage(), id, status);
             return Result.error(HttpStatus.NO_PERMISSION.getCode(), e.getMessage());
         }
         if (b) {
-            log.info("修改请假单成功，用户：{},请假单id：{},状态：{}", MyInterceptor.threadLocal.get(), id, status);
+            log.info("修改请假单状态成功，用户：{},请假单id：{},状态：{}", MyInterceptor.threadLocal.get(), id, status);
             return Result.ok("修改请假单状态成功");
         }
-        log.warn("修改请假单失败，用户：{},请假单id：{},状态：{}", MyInterceptor.threadLocal.get(), id, status);
+        log.warn("修改请假单状态失败，用户：{},请假单id：{},状态：{}", MyInterceptor.threadLocal.get(), id, status);
         return Result.error("修改请假单状态失败");
     }
     

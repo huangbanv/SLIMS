@@ -120,11 +120,10 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     @Override
     public boolean updateLeave(Leave leave) throws RoleException {
         Leave oldOne = getOne(new QueryWrapper<Leave>().eq("id", leave.getId()));
+        System.out.println(oldOne.getStudentId());
         if (RoleCheck.isStudent() && RoleCheck.getUser().getId().equals(oldOne.getStudentId())) {
-            if (leave.getStatus().equals(LeaveStatusEnum.NOT_APPROVED.getCode())) {
-                return updateById(leave);
-            } else if (leave.getStatus().equals(LeaveStatusEnum.CANCELED.getCode())) {
-                return updateById(leave.setStatus(LeaveStatusEnum.NOT_APPROVED.getCode()));
+            if (leave.getStatus().equals(LeaveStatusEnum.NOT_APPROVED.getCode()) || leave.getStatus().equals(LeaveStatusEnum.REFUSED.getCode()) || leave.getStatus().equals(LeaveStatusEnum.CANCELED.getCode())) {
+                return updateById(leave.setStatus(LeaveStatusEnum.NOT_APPROVED.getCode()).setDays());
             }
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
