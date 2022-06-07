@@ -400,7 +400,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public List<User> listInstructor() throws RoleException {
-        if(!RoleCheck.isCollegeAdmin() && !RoleCheck.isCollegeAdmin() && !RoleCheck.isCollegeInstructor()){
+        if(RoleCheck.isSADAdmin() || RoleCheck.isSADWorker() || RoleCheck.isStudent()){
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
         List<Long> userIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
