@@ -1,10 +1,8 @@
 package com.zhangjun.classdesign.slims.controller;
 
 import com.zhangjun.classdesign.slims.entity.User;
-import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
 import com.zhangjun.classdesign.slims.service.UserService;
 import com.zhangjun.classdesign.slims.util.Result;
-import com.zhangjun.classdesign.slims.util.RoleCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
