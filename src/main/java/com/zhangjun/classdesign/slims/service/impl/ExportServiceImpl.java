@@ -55,7 +55,7 @@ public class ExportServiceImpl implements ExportService {
     
     private void exportExcel(ModelMap map, HttpServletRequest request, HttpServletResponse response,List<LeaveExcel> list){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-        ExportParams params = new ExportParams("请假列表",null, ExcelType.XSSF);
+        ExportParams params = new ExportParams("请假列表               共："+list.size()+"条记录",null, ExcelType.XSSF);
         map.put(NormalExcelConstants.DATA_LIST, list);
         map.put(NormalExcelConstants.CLASS, LeaveExcel.class);
         map.put(NormalExcelConstants.PARAMS, params);
