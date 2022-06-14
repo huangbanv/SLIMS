@@ -47,8 +47,8 @@ public class UserController {
         return Result.error("添加用户失败");
     }
 
-    @PutMapping("/import")
-    public Result importUser(@RequestBody MultipartFile multipartFile){
+    @PostMapping(path = "/import")
+    public Result importUser(@RequestParam("file") MultipartFile multipartFile){
         boolean b;
         try {
             b = importService.importUsers(multipartFile);

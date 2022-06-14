@@ -3,12 +3,15 @@ package com.zhangjun.classdesign.slims.interceptor;
 import com.alibaba.fastjson.JSON;
 import com.zhangjun.classdesign.slims.entity.User;
 import com.zhangjun.classdesign.slims.util.Result;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -28,7 +31,7 @@ public class MyInterceptor implements HandlerInterceptor {
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
-        final HttpSession session = request.getSession();
+        HttpSession session = request.getSession();
         User loginUser = (User) session.getAttribute("loginUser");
         if(loginUser == null){
             response.getWriter().write(JSON.toJSONString(Result.error(300, "请先登录")));

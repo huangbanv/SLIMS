@@ -19,6 +19,6 @@ public class ImportServiceImpl implements ImportService {
      */
     @Override
     public boolean importUsers(MultipartFile multipartFile) throws RoleException {
-        return false;
+        return true;
     }
 }
