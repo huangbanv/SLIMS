@@ -1,14 +1,18 @@
 package com.zhangjun.classdesign.slims.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhangjun.classdesign.slims.entity.User;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 import com.zhangjun.classdesign.slims.interceptor.MyInterceptor;
+import com.zhangjun.classdesign.slims.service.ImportService;
 import com.zhangjun.classdesign.slims.service.UserService;
 import com.zhangjun.classdesign.slims.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.annotation.Resource;
 
 /**
@@ -22,6 +26,9 @@ public class UserController {
 
     @Resource
     UserService userService;
+
+    @Resource
+    ImportService importService;
 
     @PutMapping
     public Result putUser(@RequestBody User user){
@@ -40,22 +47,22 @@ public class UserController {
         return Result.error("添加用户失败");
     }
 
-//    @PutMapping("/import")
-//    public Result importUser(@RequestBody User user){
-//        boolean b;
-//        try {
-//            b = userService.putUser(user);
-//        }catch (RoleException e){
-//            log.error("创建用户权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
-//            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
-//        }
-//        if(b){
-//            log.info("创建用户成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(),user);
-//            return Result.ok("添加用户成功");
-//        }
-//        log.warn("创建用户失败，用户：{}", MyInterceptor.threadLocal.get());
-//        return Result.error("添加用户失败");
-//    }
+    @PutMapping("/import")
+    public Result importUser(@RequestBody MultipartFile multipartFile){
+        boolean b;
+        try {
+            b = importService.importUsers(multipartFile);
+        }catch (RoleException e){
+            log.error("导入用户权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
+            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
+        }
+        if(b){
+            log.info("导入用户成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), JSONUtil.toJsonStr(multipartFile));
+            return Result.ok("导入用户成功");
+        }
+        log.warn("导入用户失败，用户：{}", MyInterceptor.threadLocal.get());
+        return Result.error("导入用户失败");
+    }
 
     @GetMapping
     public Result listUser(@RequestParam("aimPage")Integer aimPage,
