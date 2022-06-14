@@ -150,8 +150,6 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
             String departmentId = RoleCheck.getUser().getDepartmentId();
             departmentUsers = userMapper.selectList(new QueryWrapper<User>().eq("department_id", departmentId))
                     .stream().collect(Collectors.toMap(User::getId, User::getName));
-//            List<Long> clazzIds = userClazzGroupMapper.selectList(new QueryWrapper<UserClazzGroup>().in("", ))
-//                    .stream().map(UserClazzGroup::getClazzId).collect(Collectors.toList());
             clazzQueryWrapper.in("instructor_id", departmentUsers.keySet());
         } else if (RoleCheck.isCollegeInstructor()) {
             User user = RoleCheck.getUser();

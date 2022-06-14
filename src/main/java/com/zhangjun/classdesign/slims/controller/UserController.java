@@ -40,6 +40,23 @@ public class UserController {
         return Result.error("添加用户失败");
     }
 
+//    @PutMapping("/import")
+//    public Result importUser(@RequestBody User user){
+//        boolean b;
+//        try {
+//            b = userService.putUser(user);
+//        }catch (RoleException e){
+//            log.error("创建用户权限出错，用户：{},错误信息：{}", MyInterceptor.threadLocal.get(), e.getMessage());
+//            return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
+//        }
+//        if(b){
+//            log.info("创建用户成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(),user);
+//            return Result.ok("添加用户成功");
+//        }
+//        log.warn("创建用户失败，用户：{}", MyInterceptor.threadLocal.get());
+//        return Result.error("添加用户失败");
+//    }
+
     @GetMapping
     public Result listUser(@RequestParam("aimPage")Integer aimPage,
                            @RequestParam("pageSize")Integer pageSize){
