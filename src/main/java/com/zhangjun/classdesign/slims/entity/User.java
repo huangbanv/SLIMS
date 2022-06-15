@@ -83,7 +83,6 @@ public class User implements Serializable {
     /**
      * 更新时间
      */
-    @TableField
     private String updateDate;
 
     /**

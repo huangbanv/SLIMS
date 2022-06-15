@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 /**
  * @author 张钧
@@ -47,7 +48,7 @@ public class UserController {
         return Result.error("添加用户失败");
     }
 
-    @PostMapping(path = "/import")
+    @PostMapping( "/import")
     public Result importUser(@RequestParam("file") MultipartFile multipartFile){
         boolean b;
         try {
@@ -57,7 +58,7 @@ public class UserController {
             return Result.error(HttpStatus.NO_PERMISSION.getCode(),e.getMessage());
         }
         if(b){
-            log.info("导入用户成功，用户：{},记录：{}", MyInterceptor.threadLocal.get(), JSONUtil.toJsonStr(multipartFile));
+            log.info("导入用户成功，用户：{},文件名：{}", MyInterceptor.threadLocal.get(),multipartFile.getOriginalFilename());
             return Result.ok("导入用户成功");
         }
         log.warn("导入用户失败，用户：{}", MyInterceptor.threadLocal.get());

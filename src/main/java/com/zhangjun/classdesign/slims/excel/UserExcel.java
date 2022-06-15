@@ -1,6 +1,8 @@
 package com.zhangjun.classdesign.slims.excel;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.afterturn.easypoi.handler.inter.IExcelDataModel;
+import cn.afterturn.easypoi.handler.inter.IExcelModel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 /**
@@ -10,13 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class UserExcel {
-    /**
-     * id
-     */
-    @Excel(name = "Id")
-    private Long id;
-
+public class UserExcel implements IExcelDataModel, IExcelModel {
     /**
      * 姓名
      */
@@ -42,12 +38,6 @@ public class UserExcel {
     private String departmentId;
 
     /**
-     * 所属部门名
-     */
-    @Excel(name = "所属部门名")
-    private String departmentName;
-
-    /**
      * 手机号
      */
     @Excel(name = "手机号")
@@ -64,10 +54,24 @@ public class UserExcel {
      */
     @Excel(name = "状态",replace = {"停用_0","正常_1"})
     private Integer status;
-    /**
-     * 角色Id
-     */
-    @Excel(name = "角色id")
-    private String roleId;
-
+    
+    @Override
+    public Integer getRowNum() {
+        return null;
+    }
+    
+    @Override
+    public void setRowNum(Integer integer) {
+    
+    }
+    
+    @Override
+    public String getErrorMsg() {
+        return null;
+    }
+    
+    @Override
+    public void setErrorMsg(String s) {
+    
+    }
 }

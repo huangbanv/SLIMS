@@ -16,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -278,23 +280,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userQueryWrapper.last("limit " + (aimPage - 1) * pageSize + "," + pageSize);
         List<User> list = list(userQueryWrapper);
         List<Long> ids = list.stream().map(User::getId).collect(Collectors.toList());
-        Map<Long, String> userRole = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().in("user_id", ids)).stream().collect(Collectors.toMap(RoleUserGroup::getUserId, RoleUserGroup::getRoleId));
-        Map<String, String> roleName = roleMapper.selectList(new QueryWrapper<>()).stream().collect(Collectors.toMap(Role::getId, Role::getName));
-        list.forEach(user -> {
-            user.setRoleName(roleName.get(userRole.get(user.getId())));
-            user.setRoleId(userRole.get(user.getId()));
-            if (user.getRoleId().equals(RoleEnum.STUDENT.getCode())) {
-                UserClazzGroup userClazzGroup = clazzGroupMapper.selectOne(new QueryWrapper<UserClazzGroup>().eq("student_id", user.getId()));
-                if (userClazzGroup != null){
-                    Clazz clazz = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
-                    if(clazz != null){
-                        user.setClazzId(clazz.getId());
-                        user.setClazzName(clazz.getName());
+        if(ids.size()>0){
+            Map<Long, String> userRole = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().in("user_id", ids)).stream().collect(Collectors.toMap(RoleUserGroup::getUserId, RoleUserGroup::getRoleId));
+            Map<String, String> roleName = roleMapper.selectList(new QueryWrapper<>()).stream().collect(Collectors.toMap(Role::getId, Role::getName));
+            list.forEach(user -> {
+                user.setRoleName(roleName.get(userRole.get(user.getId())));
+                user.setRoleId(userRole.get(user.getId()));
+                if (user.getRoleId().equals(RoleEnum.STUDENT.getCode())) {
+                    UserClazzGroup userClazzGroup = clazzGroupMapper.selectOne(new QueryWrapper<UserClazzGroup>().eq("student_id", user.getId()));
+                    if (userClazzGroup != null){
+                        Clazz clazz = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
+                        if(clazz != null){
+                            user.setClazzId(clazz.getId());
+                            user.setClazzName(clazz.getName());
+                        }
                     }
                 }
-            }
-        });
-        setBaseInfo(list);
+            });
+            setBaseInfo(list);
+        }
         return userPage.setRecords(list);
     }
 
@@ -424,6 +428,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean deleteInstructor(Integer id) throws RoleException {
         if (RoleCheck.isCollegeAdmin() || RoleCheck.isAdmin()) {
             return removeById(id);
+        }
+        throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
+    }
+    
+    /**
+     * 导入用户信息
+     *
+     * @param userList 用户信息列表
+     * @return 是否插入成功
+     * @throws RoleException 无权限异常
+     */
+    @Override
+    public boolean putList(List<User> userList) throws RoleException{
+        if(RoleCheck.isAdmin()){
+            saveBatch(userList);
+            userList.forEach(user -> {
+                RoleUserGroup roleUserGroup = new RoleUserGroup();
+                roleUserGroup.setUserId(user.getId()).setRoleId(user.getRoleId());
+                roleGroupMapper.insert(roleUserGroup);
+            });
+            return true;
         }
         throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
     }

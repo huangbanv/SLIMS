@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhangjun.classdesign.slims.exception.ExistInstructorException;
 import com.zhangjun.classdesign.slims.exception.RoleException;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 /**
@@ -97,4 +98,12 @@ public interface UserService extends IService<User> {
      * @throws RoleException 无权限异常
      */
     boolean updateUser(User user) throws RoleException;
+    
+    /**
+     * 导入用户信息
+     * @param userList 用户信息列表
+     * @return 是否插入成功
+     * @throws RoleException 无权限异常
+     */
+    boolean putList(List<User> userList) throws RoleException;
 }
