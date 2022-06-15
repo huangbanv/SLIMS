@@ -7,11 +7,11 @@ import com.zhangjun.classdesign.slims.entity.*;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.enums.LeaveStatusEnum;
 import com.zhangjun.classdesign.slims.exception.RoleException;
-import com.zhangjun.classdesign.slims.mapper.ClazzMapper;
 import com.zhangjun.classdesign.slims.mapper.LeaveMapper;
-import com.zhangjun.classdesign.slims.mapper.UserMapper;
+import com.zhangjun.classdesign.slims.service.ClazzService;
 import com.zhangjun.classdesign.slims.service.LeaveService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhangjun.classdesign.slims.service.UserService;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -31,10 +31,10 @@ import java.util.stream.Stream;
 public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements LeaveService {
 
     @Resource
-    ClazzMapper clazzMapper;
+    ClazzService clazzService;
 
     @Resource
-    UserMapper userMapper;
+    UserService userService;
 
     Map<Integer, String> map = new HashMap<Integer, String>() {{
         put(0, "未批准");
@@ -81,7 +81,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         } else if (RoleCheck.isCollegeInstructor()) {
             leaveQueryWrapper.eq("instructor_id", RoleCheck.getUser().getId()).eq("status", LeaveStatusEnum.NOT_APPROVED.getCode());
         } else if (RoleCheck.isCollegeAdmin()) {
-            List<Long> userIds = userMapper.selectList(new QueryWrapper<User>().eq("department_id", RoleCheck.getUser().getDepartmentId())).stream().map(User::getId).collect(Collectors.toList());
+            List<Long> userIds = userService.list(new QueryWrapper<User>().eq("department_id", RoleCheck.getUser().getDepartmentId())).stream().map(User::getId).collect(Collectors.toList());
             leaveQueryWrapper.in("student_id", userIds);
         }
         long count = count(leaveQueryWrapper);
@@ -102,7 +102,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         if (!RoleCheck.isStudent()) {
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
-        Clazz clazz = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", RoleCheck.getUser().getClazzId()));
+        Clazz clazz = clazzService.getOne(new QueryWrapper<Clazz>().eq("id", RoleCheck.getUser().getClazzId()));
         leave.setStudentId(RoleCheck.getUser().getId()).setInstructorId(clazz.getInstructorId()).setDays().setStatus(LeaveStatusEnum.NOT_APPROVED.getCode());
         if (leave.getDays().signum() != 1) {
             return false;
@@ -145,7 +145,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         if (RoleCheck.isStudent()) {
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
-        Long instructorId = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", clazzId)).getInstructorId();
+        Long instructorId = clazzService.getOne(new QueryWrapper<Clazz>().eq("id", clazzId)).getInstructorId();
         QueryWrapper<Leave> leaveQueryWrapper = new QueryWrapper<Leave>().eq("instructor_id", instructorId).gt("start_time", startDate).lt("end_time", endDate);
         long count = count(leaveQueryWrapper);
         List<Leave> list = fillFields(count, leaveQueryWrapper, aimPage, pageSize);
@@ -183,7 +183,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
             List<Leave> list = list(leaveQueryWrapper);
             List<Long> userIds = Stream.of(list.stream().map(Leave::getStudentId).collect(Collectors.toList()), list.stream().map(Leave::getInstructorId).collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
             if (userIds.size() > 0) {
-                Map<Long, String> names = userMapper.selectList(new QueryWrapper<User>().in("id", userIds)).stream().collect(Collectors.toMap(User::getId, User::getName));
+                Map<Long, String> names = userService.list(new QueryWrapper<User>().in("id", userIds)).stream().collect(Collectors.toMap(User::getId, User::getName));
                 list.forEach(leave -> leave.setStudentName(names.get(leave.getStudentId())).setInstructorName(names.get(leave.getInstructorId())).setTypeS(leave.getType() == 0 ? "事假" : "病假").setStatusS(map.get(leave.getStatus())));
             }
             return list;

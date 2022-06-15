@@ -12,14 +12,13 @@ import com.zhangjun.classdesign.slims.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhangjun.classdesign.slims.util.EntityField;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,26 +34,26 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    @Resource
-    RoleUserGroupMapper roleGroupMapper;
+    @Autowired
+    RoleUserGroupService roleGroupService;
 
     @Resource
-    RoleMenuGroupMapper menuGroupMapper;
+    RoleMenuGroupService menuGroupService;
 
     @Resource
-    RoleMapper roleMapper;
+    RoleService roleService;
 
     @Resource
-    MenuMapper menuMapper;
+    MenuService menuService;
 
     @Resource
-    DepartmentMapper departmentMapper;
+    DepartmentService departmentService;
 
     @Resource
-    ClazzMapper clazzMapper;
+    ClazzService clazzService;
 
     @Resource
-    UserClazzGroupMapper clazzGroupMapper;
+    UserClazzGroupService clazzGroupService;
 
     /**
      * 登录验证
@@ -74,21 +73,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return null;
         }
         if (theOne != null) {
-            RoleUserGroup userRole = roleGroupMapper.selectOne(new QueryWrapper<RoleUserGroup>().eq("user_id", theOne.getId()));
+            RoleUserGroup userRole = roleGroupService.getOne(new QueryWrapper<RoleUserGroup>().eq("user_id", theOne.getId()));
             if (userRole != null) {
                 theOne.setRoleId(userRole.getRoleId());
-                List<Long> menuIds = menuGroupMapper.selectList(
+                List<Long> menuIds = menuGroupService.list(
                                 new QueryWrapper<RoleMenuGroup>().eq("role_id", userRole.getRoleId()))
                         .stream().map(RoleMenuGroup::getMenuId).collect(Collectors.toList());
                 if (menuIds.size() > 0) {
-                    List<Menu> menus = menuMapper.selectList(new QueryWrapper<Menu>().in("id", menuIds));
+                    List<Menu> menus = menuService.list(new QueryWrapper<Menu>().in("id", menuIds));
                     theOne.setMenus(menus);
                 }
                 if(theOne.getRoleId().equals(RoleEnum.STUDENT.getCode())){
-                    UserClazzGroup userClazzGroup = clazzGroupMapper.selectOne(new QueryWrapper<UserClazzGroup>().eq("student_id", theOne.getId()));
+                    UserClazzGroup userClazzGroup = clazzGroupService.getOne(new QueryWrapper<UserClazzGroup>().eq("student_id", theOne.getId()));
                     if (userClazzGroup != null){
                         theOne.setClazzId(userClazzGroup.getClazzId());
-                        Clazz clazz = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
+                        Clazz clazz = clazzService.getOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
                         theOne.setClazzName(clazz.getName());
                     }
                 }
@@ -109,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         boolean saveUser = this.save(user);
         roleUserGroup.setUserId(user.getId());
         roleUserGroup.setRoleId(roleId);
-        boolean saveGroup = roleGroupMapper.insert(roleUserGroup) == 1;
+        boolean saveGroup = roleGroupService.save(roleUserGroup);
         return saveUser && saveGroup;
     }
 
@@ -134,12 +133,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String roleId = user.getRoleId();
         String s = roleId.replaceFirst("[0-9]", "%");
         QueryWrapper<Role> roleQueryWrapper = new QueryWrapper<Role>().gt("id", roleId).like("id", s);
-        List<String> roleIds = roleMapper.selectList(roleQueryWrapper).stream().map(Role::getId).collect(Collectors.toList());
+        List<String> roleIds = roleService.list(roleQueryWrapper).stream().map(Role::getId).collect(Collectors.toList());
         if (roleIds.size() <= 0) {
             return null;
         }
         QueryWrapper<RoleUserGroup> roleGroupQueryWrapper = new QueryWrapper<RoleUserGroup>().in("role_id", roleIds);
-        List<Long> userIds = roleGroupMapper.selectList(roleGroupQueryWrapper).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+        List<Long> userIds = roleGroupService.list(roleGroupQueryWrapper).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
         if (userIds.size() <= 0) {
             return null;
         }
@@ -169,7 +168,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User oldUser = getUser(user);
         checkRole(oldUser);
         if(user.getRoleId().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
-            List<Long> userIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_ADMIN.getCode())).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+            List<Long> userIds = roleGroupService.list(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_ADMIN.getCode())).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
             List<String> departmentIds = list(new QueryWrapper<User>().in("id", userIds)).stream().map(User::getDepartmentId).collect(Collectors.toList());
             for (String departmentId : departmentIds) {
                 if(user.getDepartmentId().equals(departmentId)){
@@ -177,13 +176,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 }
             }
         }
-        roleGroupMapper.update(new RoleUserGroup().setRoleId(user.getRoleId()), new QueryWrapper<RoleUserGroup>().eq("user_id", user.getId()));
+        roleGroupService.update(new RoleUserGroup().setRoleId(user.getRoleId()), new QueryWrapper<RoleUserGroup>().eq("user_id", user.getId()));
         if (user.getClazzId() != null && oldUser.getRoleId().equals(RoleEnum.STUDENT.getCode()) && oldUser.getRoleId().equals(user.getRoleId())) {
-            UserClazzGroup userClazzGroup = clazzGroupMapper.selectOne(new QueryWrapper<UserClazzGroup>().eq("student_id", oldUser.getId()));
+            UserClazzGroup userClazzGroup = clazzGroupService.getOne(new QueryWrapper<UserClazzGroup>().eq("student_id", oldUser.getId()));
             if (userClazzGroup == null) {
-                clazzGroupMapper.insert(new UserClazzGroup().setClazzId(user.getClazzId()).setStudentId(user.getId()));
+                clazzGroupService.save(new UserClazzGroup().setClazzId(user.getClazzId()).setStudentId(user.getId()));
             } else if (!(oldUser.getClazzId().equals(user.getClazzId()))) {
-                clazzGroupMapper.updateById(userClazzGroup.setClazzId(user.getClazzId()));
+                clazzGroupService.updateById(userClazzGroup.setClazzId(user.getClazzId()));
             }
         }
         return updateById(user);
@@ -201,9 +200,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = getUser(new User().setId(id));
         checkRole(user);
         if (user.getRoleId().equals(RoleEnum.STUDENT.getCode())) {
-            clazzGroupMapper.delete(new QueryWrapper<UserClazzGroup>().eq("student_id", user.getId()));
+            clazzGroupService.remove(new QueryWrapper<UserClazzGroup>().eq("student_id", user.getId()));
         }
-        roleGroupMapper.delete(new QueryWrapper<RoleUserGroup>().eq("user_id", user.getId()));
+        roleGroupService.remove(new QueryWrapper<RoleUserGroup>().eq("user_id", user.getId()));
         return removeById(id);
     }
 
@@ -218,7 +217,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean putUser(User user) throws RoleException {
         checkRole(user);
         if(user.getRoleId().equals(RoleEnum.COLLEGE_ADMIN.getCode())){
-            List<Long> roleIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", user.getRoleId())).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
+            List<Long> roleIds = roleGroupService.list(new QueryWrapper<RoleUserGroup>().eq("role_id", user.getRoleId())).stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
             if(roleIds.size()>0){
                 List<String> admins = list(new QueryWrapper<User>().in("id", roleIds)).stream().map(User::getDepartmentId).collect(Collectors.toList());
                 for (String admin: admins) {
@@ -268,8 +267,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } else if (RoleCheck.isCollegeAdmin()) {
             userQueryWrapper.eq("department_id", loginUser.getDepartmentId());
         } else if (RoleCheck.isCollegeInstructor()) {
-            List<Long> clazzIds = clazzMapper.selectList(new QueryWrapper<Clazz>().eq("instructor_id", loginUser.getId())).stream().map(Clazz::getId).collect(Collectors.toList());
-            List<Long> studentIds = clazzGroupMapper.selectList(new QueryWrapper<UserClazzGroup>().in("clazz_id", clazzIds)).stream().map(UserClazzGroup::getStudentId).collect(Collectors.toList());
+            List<Long> clazzIds = clazzService.list(new QueryWrapper<Clazz>().eq("instructor_id", loginUser.getId())).stream().map(Clazz::getId).collect(Collectors.toList());
+            List<Long> studentIds = clazzGroupService.list(new QueryWrapper<UserClazzGroup>().in("clazz_id", clazzIds)).stream().map(UserClazzGroup::getStudentId).collect(Collectors.toList());
             userQueryWrapper.in("id", studentIds);
         } else if (RoleCheck.isSADAdmin()) {
             userQueryWrapper.eq("department_id", loginUser.getDepartmentId());
@@ -281,15 +280,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         List<User> list = list(userQueryWrapper);
         List<Long> ids = list.stream().map(User::getId).collect(Collectors.toList());
         if(ids.size()>0){
-            Map<Long, String> userRole = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().in("user_id", ids)).stream().collect(Collectors.toMap(RoleUserGroup::getUserId, RoleUserGroup::getRoleId));
-            Map<String, String> roleName = roleMapper.selectList(new QueryWrapper<>()).stream().collect(Collectors.toMap(Role::getId, Role::getName));
+            Map<Long, String> userRole = roleGroupService.list(new QueryWrapper<RoleUserGroup>().in("user_id", ids)).stream().collect(Collectors.toMap(RoleUserGroup::getUserId, RoleUserGroup::getRoleId));
+            Map<String, String> roleName = roleService.list(new QueryWrapper<>()).stream().collect(Collectors.toMap(Role::getId, Role::getName));
             list.forEach(user -> {
                 user.setRoleName(roleName.get(userRole.get(user.getId())));
                 user.setRoleId(userRole.get(user.getId()));
                 if (user.getRoleId().equals(RoleEnum.STUDENT.getCode())) {
-                    UserClazzGroup userClazzGroup = clazzGroupMapper.selectOne(new QueryWrapper<UserClazzGroup>().eq("student_id", user.getId()));
+                    UserClazzGroup userClazzGroup = clazzGroupService.getOne(new QueryWrapper<UserClazzGroup>().eq("student_id", user.getId()));
                     if (userClazzGroup != null){
-                        Clazz clazz = clazzMapper.selectOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
+                        Clazz clazz = clazzService.getOne(new QueryWrapper<Clazz>().eq("id", userClazzGroup.getClazzId()));
                         if(clazz != null){
                             user.setClazzId(clazz.getId());
                             user.setClazzName(clazz.getName());
@@ -303,7 +302,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     private void setBaseInfo(List<User> list) {
-        Map<String, String> departmentMap = departmentMapper.selectList(new QueryWrapper<>()).stream().collect(Collectors.toMap(Department::getId, Department::getName));
+        Map<String, String> departmentMap = departmentService.list(new QueryWrapper<>()).stream().collect(Collectors.toMap(Department::getId, Department::getName));
         list.forEach(user -> {
             user.setDepartmentName(departmentMap.get(user.getDepartmentId()));
             user.setStatusS(user.getStatus() == 0 ? "停用" : "正常");
@@ -348,7 +347,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
         Page<User> userPage = new Page<>();
-        List<Long> instructorIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>()
+        List<Long> instructorIds = roleGroupService.list(new QueryWrapper<RoleUserGroup>()
                         .eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
                 .stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
         QueryWrapper<User> queryWrapper = new QueryWrapper<User>().in("id", instructorIds);
@@ -407,7 +406,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(RoleCheck.isSADAdmin() || RoleCheck.isSADWorker() || RoleCheck.isStudent()){
             throw new RoleException(HttpStatus.NO_PERMISSION.getMessage());
         }
-        List<Long> userIds = roleGroupMapper.selectList(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
+        List<Long> userIds = roleGroupService.list(new QueryWrapper<RoleUserGroup>().eq("role_id", RoleEnum.COLLEGE_INSTRUCTOR.getCode()))
                 .stream().map(RoleUserGroup::getUserId).collect(Collectors.toList());
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         userQueryWrapper.in("id", userIds);
@@ -446,7 +445,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userList.forEach(user -> {
                 RoleUserGroup roleUserGroup = new RoleUserGroup();
                 roleUserGroup.setUserId(user.getId()).setRoleId(user.getRoleId());
-                roleGroupMapper.insert(roleUserGroup);
+                roleGroupService.save(roleUserGroup);
             });
             return true;
         }

@@ -5,8 +5,8 @@ import com.zhangjun.classdesign.slims.entity.Menu;
 import com.zhangjun.classdesign.slims.entity.RoleMenuGroup;
 import com.zhangjun.classdesign.slims.enums.HttpStatus;
 import com.zhangjun.classdesign.slims.exception.RoleException;
-import com.zhangjun.classdesign.slims.mapper.MenuMapper;
 import com.zhangjun.classdesign.slims.mapper.RoleMenuGroupMapper;
+import com.zhangjun.classdesign.slims.service.MenuService;
 import com.zhangjun.classdesign.slims.service.RoleMenuGroupService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhangjun.classdesign.slims.util.RoleCheck;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class RoleMenuGroupServiceImpl extends ServiceImpl<RoleMenuGroupMapper, RoleMenuGroup> implements RoleMenuGroupService {
 
     @Resource
-    MenuMapper menuMapper;
+    MenuService menuService;
 
     /**
      * 添加角色可访问菜单
@@ -79,7 +79,7 @@ public class RoleMenuGroupServiceImpl extends ServiceImpl<RoleMenuGroupMapper, R
             Map<Long, Long> map = list(new QueryWrapper<RoleMenuGroup>().eq("role_id", id))
                     .stream().collect(Collectors.toMap(RoleMenuGroup::getMenuId, RoleMenuGroup::getId));
             if(map.size() >0){
-                List<Menu> menus = menuMapper.selectList(new QueryWrapper<Menu>().in("id", map.keySet()));
+                List<Menu> menus = menuService.list(new QueryWrapper<Menu>().in("id", map.keySet()));
                 menus.forEach(menu -> menu.setMenuRoleId(map.get(menu.getId())));
                 return menus;
             }
